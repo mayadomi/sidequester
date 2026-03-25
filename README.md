@@ -3,7 +3,7 @@
 A web-based event planner and schedule viewer for the **Santos Tour Down Under** cycling festival. Browse the full event program, explore a live timeline of race stages and community rides, filter by category, cost, distance, and more — then save your personal schedule with favourites.
 
 <!-- Screenshot: events listing page -->
-![Events listing](docs/screenshots/events-index.png)
+![Events listing](docs/screenshots/EventsPage.png)
 
 ## Features
 
@@ -16,7 +16,7 @@ A web-based event planner and schedule viewer for the **Santos Tour Down Under**
 - **Data import** — scraper and importer pipeline for ingesting event data from the official TDU program
 
 <!-- Screenshot: schedule / timeline view -->
-![Schedule view](docs/screenshots/schedule.png)
+![Schedule view](docs/screenshots/SchedulePage.png)
 
 ## Stack
 
@@ -81,7 +81,7 @@ The importer reads JSON scraped from the TDU website and normalises it against t
 The scraped data required a meaningful amount of manual curation — event titles, categories, and venue names varied significantly across the source, and sponsor associations were often missing or inconsistent. The normalisation aliases in `config/tdu.php` capture the bulk of these mappings, but edge cases were resolved by hand.
 
 <!-- Screenshot: event detail page -->
-![Event detail](docs/screenshots/event-detail.png)
+![Event detail](docs/screenshots/EventDetail.png)
 
 ## User Roles
 
@@ -94,7 +94,7 @@ The scraped data required a meaningful amount of manual curation — event title
 Viewers can request editor access from the sidebar; admins approve requests from the Users panel.
 
 <!-- Screenshot: sidebar with role-based navigation -->
-![Sidebar navigation](docs/screenshots/sidebar.png)
+![Dark Mode](docs/screenshots/Darkmode.png)
 
 ## Key Commands
 
