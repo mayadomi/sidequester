@@ -9,7 +9,7 @@
  *   tdu-download   → direct GPX/KML file downloads
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { writeFileSync, mkdirSync } from 'fs';
 import { DOMParser } from '@xmldom/xmldom';
 import { gpx, kml } from '@tmcw/togeojson';
 

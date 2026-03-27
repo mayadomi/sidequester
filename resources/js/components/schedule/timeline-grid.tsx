@@ -107,9 +107,8 @@ export function TimelineGrid({
     );
 
     // ── Live "now" time — initialised from server prop then updated every minute
-    const [liveNow, setLiveNow] = useState(() => new Date(currentTime));
+    const [liveNow, setLiveNow] = useState(() => new Date());
     useEffect(() => {
-        setLiveNow(new Date()); // sync to wall clock on hydration
         const timer = setInterval(() => setLiveNow(new Date()), 60_000);
         return () => clearInterval(timer);
     }, []);

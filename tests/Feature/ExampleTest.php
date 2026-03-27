@@ -1,7 +1,7 @@
 <?php
 
-it('returns a successful response', function () {
+it('redirects guests from / to the events index', function () {
     $response = $this->get('/');
 
-    $response->assertStatus(200);
+    $response->assertRedirect(route('events.index'));
 });

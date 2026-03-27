@@ -45,7 +45,6 @@ export default function EventsIndex({
     ).length;
 
     const pageLinks = events.links.slice(1, -1);
-    const currentPage = events.current_page;
     const lastPage = events.last_page;
 
     const getVisiblePages = () => {
