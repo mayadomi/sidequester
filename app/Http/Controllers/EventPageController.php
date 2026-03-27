@@ -37,7 +37,7 @@ class EventPageController extends Controller
         // Get paginated results
         $perPage = min((int) $request->input('per_page', 12), 100);
         $paginator = $query->paginate($perPage)->withQueryString();
-        
+
         // Transform to array format expected by frontend
         $events = [
             'data' => EventResource::collection($paginator->items())->resolve(),
@@ -53,14 +53,11 @@ class EventPageController extends Controller
         ];
 
         // Get filter options (cached — these change only when events are imported)
-        $categories = Cache::remember('filter_categories', 3600, fn () =>
-            Category::withCount('events')->orderBy('name')->get()
+        $categories = Cache::remember('filter_categories', 3600, fn () => Category::withCount('events')->orderBy('name')->get()
         );
-        $locations = Cache::remember('filter_locations', 3600, fn () =>
-            Location::withCount('events')->orderBy('name')->get()
+        $locations = Cache::remember('filter_locations', 3600, fn () => Location::withCount('events')->orderBy('name')->get()
         );
-        $tags = Cache::remember('filter_tags', 3600, fn () =>
-            Tag::withCount('events')->orderBy('name')->get()
+        $tags = Cache::remember('filter_tags', 3600, fn () => Tag::withCount('events')->orderBy('name')->get()
         );
 
         // Get featured events for homepage state (no filters applied)
@@ -100,9 +97,9 @@ class EventPageController extends Controller
 
         return Inertia::render('events/create', [
             'categories' => Category::orderBy('name')->get(['id', 'name']),
-            'sponsors'   => Sponsor::orderBy('name')->get(['id', 'name']),
-            'locations'  => Location::orderBy('name')->get(['id', 'name']),
-            'tags'       => Tag::orderBy('name')->get(['id', 'name']),
+            'sponsors' => Sponsor::orderBy('name')->get(['id', 'name']),
+            'locations' => Location::orderBy('name')->get(['id', 'name']),
+            'tags' => Tag::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -132,32 +129,34 @@ class EventPageController extends Controller
 
         return Inertia::render('events/edit', [
             'event' => [
-                'id'               => $event->id,
-                'title'            => $event->title,
-                'description'      => $event->description,
-                'start_datetime'   => $event->start_datetime->format('Y-m-d\TH:i'),
-                'end_datetime'     => $event->end_datetime->format('Y-m-d\TH:i'),
-                'category_id'      => $event->category_id,
-                'sponsor_id'       => $event->sponsor_id,
-                'location_id'      => $event->location_id,
-                'pace'             => $event->pace,
-                'route_url'        => $event->route_url,
-                'url'              => $event->url,
-                'is_featured'      => $event->is_featured,
-                'is_recurring'     => $event->is_recurring,
-                'is_womens'        => $event->is_womens,
-                'is_free'          => $event->is_free,
-                'min_cost'         => $event->min_cost,
-                'max_cost'         => $event->max_cost,
+                'id' => $event->id,
+                'title' => $event->title,
+                'description' => $event->description,
+                'start_datetime' => $event->start_datetime->format('Y-m-d\TH:i'),
+                'end_datetime' => $event->end_datetime->format('Y-m-d\TH:i'),
+                'category_id' => $event->category_id,
+                'sponsor_id' => $event->sponsor_id,
+                'location_id' => $event->location_id,
+                'pace' => $event->pace,
+                'route_url' => $event->route_url,
+                'url' => $event->url,
+                'is_featured' => $event->is_featured,
+                'is_recurring' => $event->is_recurring,
+                'is_womens' => $event->is_womens,
+                'is_free' => $event->is_free,
+                'min_cost' => $event->min_cost,
+                'max_cost' => $event->max_cost,
                 'ride_distance_km' => $event->ride_distance_km,
                 'elevation_gain_m' => $event->elevation_gain_m,
-                'tag_ids'          => $event->tags->pluck('id')->toArray(),
+                'tag_ids' => $event->tags->pluck('id')->toArray(),
                 'banner_image_url' => $event->getFirstMediaUrl('banner', 'card'),
+                'has_route' => $event->hasMedia('route_gpx'),
+                'route_gpx_name' => $event->getFirstMedia('route_gpx')?->file_name,
             ],
             'categories' => Category::orderBy('name')->get(['id', 'name']),
-            'sponsors'   => Sponsor::orderBy('name')->get(['id', 'name']),
-            'locations'  => Location::orderBy('name')->get(['id', 'name']),
-            'tags'       => Tag::orderBy('name')->get(['id', 'name']),
+            'sponsors' => Sponsor::orderBy('name')->get(['id', 'name']),
+            'locations' => Location::orderBy('name')->get(['id', 'name']),
+            'tags' => Tag::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -200,6 +199,44 @@ class EventPageController extends Controller
     }
 
     /**
+     * Upload (or replace) the event GPX route file and its derived GeoJSON.
+     */
+    public function uploadRoute(Request $request, Event $event): RedirectResponse
+    {
+        $this->authorize('manageRoute', $event);
+        $request->validate([
+            'gpx' => ['required', 'file', 'max:10240'],
+            'route_geojson' => ['required', 'string'],
+        ]);
+
+        // Validate that route_geojson is well-formed JSON
+        $geojson = json_decode($request->input('route_geojson'), true);
+        if (json_last_error() !== JSON_ERROR_NONE || ! isset($geojson['type'])) {
+            return back()->withErrors(['route_geojson' => 'Invalid GeoJSON data.']);
+        }
+
+        // Store original GPX for future re-processing (e.g. PostGIS migration)
+        $event->addMediaFromRequest('gpx')->toMediaCollection('route_gpx');
+
+        // Store the processed GeoJSON for fast map rendering
+        $event->update(['route_geojson' => $geojson]);
+
+        return back()->with('success', 'Route uploaded.');
+    }
+
+    /**
+     * Remove the event GPX route and its GeoJSON.
+     */
+    public function deleteRoute(Event $event): RedirectResponse
+    {
+        $this->authorize('manageRoute', $event);
+        $event->clearMediaCollection('route_gpx');
+        $event->update(['route_geojson' => null]);
+
+        return back()->with('success', 'Route removed.');
+    }
+
+    /**
      * Display a single event.
      */
     public function show(Event $event): Response
@@ -213,9 +250,8 @@ class EventPageController extends Controller
         }
 
         return Inertia::render('events/show', [
-            'event'    => (new EventResource($event))->resolve(),
+            'event' => (new EventResource($event))->resolve(),
             'can_edit' => auth()->user()?->can('update', $event) ?? false,
         ]);
     }
-
 }

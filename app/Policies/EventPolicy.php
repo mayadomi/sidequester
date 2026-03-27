@@ -45,6 +45,14 @@ class EventPolicy
     }
 
     /**
+     * Same ownership rule for GPX route management.
+     */
+    public function manageRoute(User $user, Event $event): bool
+    {
+        return $user->isEditor() && $event->created_by_user_id === $user->id;
+    }
+
+    /**
      * Editors may only delete events they created.
      */
     public function delete(User $user, Event $event): bool

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\SponsorController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\EventPageController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\ProfileEditorRequestController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SponsorPageController;
@@ -27,6 +28,9 @@ Route::get('/events/{event}', [EventPageController::class, 'show'])->name('event
 
 // Schedule/Timeline View
 Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
+
+// Map View
+Route::get('/map', [MapController::class, 'index'])->name('map.index');
 
 // Public API routes
 Route::prefix('api')->group(function () {
@@ -78,6 +82,10 @@ Route::middleware(['auth', 'verified', 'editor'])->group(function () {
     // Event banner image
     Route::post('/events/{event}/banner', [EventPageController::class, 'uploadBanner'])->name('events.banner.upload')->whereNumber('event');
     Route::delete('/events/{event}/banner', [EventPageController::class, 'deleteBanner'])->name('events.banner.delete')->whereNumber('event');
+
+    // Event GPX route
+    Route::post('/events/{event}/route', [EventPageController::class, 'uploadRoute'])->name('events.route.upload')->whereNumber('event');
+    Route::delete('/events/{event}/route', [EventPageController::class, 'deleteRoute'])->name('events.route.delete')->whereNumber('event');
 
     // Sponsor management
     Route::get('/sponsors', [SponsorPageController::class, 'index'])->name('sponsors.index');

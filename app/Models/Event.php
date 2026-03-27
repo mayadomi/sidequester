@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -41,6 +40,7 @@ class Event extends Model implements HasMedia
         'min_cost',
         'max_cost',
         'is_free',
+        'route_geojson',
     ];
 
     /**
@@ -59,6 +59,7 @@ class Event extends Model implements HasMedia
         'min_cost' => 'decimal:2',
         'max_cost' => 'decimal:2',
         'is_free' => 'boolean',
+        'route_geojson' => 'array',
     ];
 
     /**
@@ -116,6 +117,7 @@ class Event extends Model implements HasMedia
     public function scopeHappeningNow(Builder $query): Builder
     {
         $now = now();
+
         return $query->where('start_datetime', '<=', $now)
             ->where('end_datetime', '>=', $now);
     }
@@ -191,6 +193,7 @@ class Event extends Model implements HasMedia
     public function isHappeningNow(): bool
     {
         $now = now();
+
         return $this->start_datetime <= $now && $this->end_datetime >= $now;
     }
 
@@ -311,8 +314,8 @@ class Event extends Model implements HasMedia
     public function scopeSearch(Builder $query, string $term): Builder
     {
         return $query->where(function ($q) use ($term) {
-            $q->where('title', 'like', '%' . $term . '%')
-              ->orWhere('description', 'like', '%' . $term . '%');
+            $q->where('title', 'like', '%'.$term.'%')
+                ->orWhere('description', 'like', '%'.$term.'%');
         });
     }
 
@@ -333,9 +336,14 @@ class Event extends Model implements HasMedia
         $this->addMediaCollection('banner')
             ->singleFile()
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
+        // Stores the original GPX file for the route. The processed GeoJSON
+        // is kept in the route_geojson column for fast map rendering.
+        $this->addMediaCollection('route_gpx')
+            ->singleFile();
     }
 
-    public function registerMediaConversions(Media $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('card')
             ->width(800)

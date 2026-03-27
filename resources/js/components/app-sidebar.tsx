@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { BookOpen, Calendar, CalendarClock, ClockAlert, Folder, Heart, LayoutGrid, Monitor, Moon, Plus, Settings, Shield, Sun, Users } from 'lucide-react';
+import { BookOpen, Calendar, CalendarClock, ClockAlert, Folder, Heart, LayoutGrid, Map, Monitor, Moon, Plus, Settings, Shield, Sun, Users } from 'lucide-react';
 
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -27,9 +27,10 @@ import type { NavItem, SharedData } from '@/types';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
-    { title: 'Dashboard',     href: dashboard(), icon: LayoutGrid },
-    { title: 'Events',        href: '/events',   icon: Calendar },
-    { title: 'Schedule',      href: '/schedule', icon: CalendarClock },
+    { title: 'Dashboard',     href: dashboard(),  icon: LayoutGrid },
+    { title: 'Events',        href: '/events',    icon: Calendar },
+    { title: 'Schedule',      href: '/schedule',  icon: CalendarClock },
+    { title: 'Map',           href: '/map',       icon: Map },
     { title: 'My Favourites', href: '/dashboard', icon: Heart }, // TODO: dedicated page
 ];
 

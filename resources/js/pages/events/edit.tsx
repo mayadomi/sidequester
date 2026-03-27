@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { GpxUpload } from '@/components/ui/gpx-upload';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -45,6 +46,8 @@ interface EditableEvent {
     elevation_gain_m: number | null;
     tag_ids: number[];
     banner_image_url: string | null;
+    has_route: boolean;
+    route_gpx_name: string | null;
 }
 
 interface EventEditProps {
@@ -365,6 +368,21 @@ export default function EventEdit({ event, categories, sponsors, locations, tags
                                 label="Event card banner"
                                 hint="Displayed on event cards and the event detail page. Recommended: 800×400px."
                                 aspectRatio="2/1"
+                            />
+                        </CardContent>
+                    </Card>
+
+                    {/* Route GPX */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Route</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <GpxUpload
+                                hasRoute={event.has_route}
+                                routeGpxName={event.route_gpx_name}
+                                uploadRoute={`/events/${event.id}/route`}
+                                deleteRoute={`/events/${event.id}/route`}
                             />
                         </CardContent>
                     </Card>
