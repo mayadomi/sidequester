@@ -1,6 +1,12 @@
 # TDU Planner
 
-A web-based event planner and schedule viewer for the **Santos Tour Down Under** cycling festival. Browse the full event program, explore a live timeline of race stages and community rides, filter by category, cost, distance, and more — then save your personal schedule with favourites.
+A web-based event planner and schedule viewer for the **Santos Tour Down Under** cycling festival. 
+
+Inspired by the ongoing work by David Rossi who created and has maintained [All The TDU](dhttps://allthetdu.com/) for the last 8 years, I wanted to create a version that helped me acheive two main goals:
+
+- A searchable/filterable view of events through a schedule and map lens
+- A project to help me upskill in Laravel, Claude Code and AI/LLM integrations.
+
 
 <!-- Screenshot: events listing page -->
 ![Events listing](docs/screenshots/EventsPage.png)
@@ -9,6 +15,7 @@ A web-based event planner and schedule viewer for the **Santos Tour Down Under**
 
 - **Event browser** — searchable, filterable listing of all TDU events with category, cost, distance, recurrence, and women's event indicators
 - **Timeline / schedule view** — visual day-by-day timeline grid showing overlapping events across the festival week
+- **Map view** — showing all the ride routes, event locations and race stages.
 - **Event detail pages** — full event info with banner images and route links
 - **Favourites** — authenticated users can save events to a personal shortlist
 - **Editor role** — credentialed users can create and edit events, upload banner images, and manage sponsor logos
@@ -17,6 +24,9 @@ A web-based event planner and schedule viewer for the **Santos Tour Down Under**
 
 <!-- Screenshot: schedule / timeline view -->
 ![Schedule view](docs/screenshots/SchedulePage.png)
+<!-- Screenshot: schedule / timeline view -->
+![Map view](docs/screenshots/MapPage.png)
+
 
 ## Stack
 
@@ -109,9 +119,6 @@ php artisan wayfinder:generate   # regenerate type-safe route helpers
 
 ## Next Steps
 
-### Map-based event view
-
-Route GeoJSON data has been collected for a significant portion of events (via RideWithGPS and direct TDU downloads). The next major feature is a map view that renders event routes as interactive overlays, allowing riders to visually explore start locations, course profiles, and route density across the festival.
 
 ### Agentic integration
 
