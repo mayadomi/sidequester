@@ -20,7 +20,7 @@ class MapController extends Controller
             ? Carbon::parse($request->input('date'), self::DISPLAY_TZ)->startOfDay()
             : ($dateRange['start'] ?? Carbon::now(self::DISPLAY_TZ)->startOfDay());
 
-        $events = Event::with(['category', 'location'])
+        $events = Event::with(['category', 'location', 'sponsor.media'])
             ->whereDate('start_datetime', $selectedDate)
             ->whereHas('location')
             ->orderBy('start_datetime')
@@ -53,8 +53,11 @@ class MapController extends Controller
                         'category_name' => $event->category?->name ?? 'Other',
                         'url' => $event->url,
                         'ride_distance_km' => $event->ride_distance_km,
+                        'elevation_gain_m' => $event->elevation_gain_m,
                         'is_featured' => $event->is_featured,
                         'route_geojson' => $event->route_geojson,
+                        'sponsor_logo_url' => $event->sponsor?->getFirstMediaUrl('logo_square', 'display') ?: null,
+                        'sponsor_logo_dark_url' => $event->sponsor?->getFirstMediaUrl('logo_square_dark', 'display') ?: null,
                     ])->values()->toArray(),
                 ];
             })

@@ -72,15 +72,6 @@ export default function ScheduleIndex({
             <div className="flex h-[calc(100dvh-4rem)] flex-col">
                 {/* Header */}
                 <div className="shrink-0 border-b bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-3 text-white sm:px-4 sm:py-4">
-                    <div className="flex items-center justify-between">
-                        <h1 className="text-lg font-bold sm:text-2xl">Schedule</h1>
-                        <Link href="/events">
-                            <Button variant="secondary" size="sm">
-                                <Calendar className="size-4 sm:mr-2" />
-                                <span className="hidden sm:inline">List View</span>
-                            </Button>
-                        </Link>
-                    </div>
 
                     {/* Search */}
                     <div className="mt-2 sm:mt-3">
@@ -99,7 +90,7 @@ export default function ScheduleIndex({
                             <ChevronLeft className="size-4 sm:size-5" />
                         </Button>
 
-                        <div className="scrollbar-none flex flex-1 justify-center gap-1 overflow-x-auto">
+                        <div className="scrollbar-none flex flex-1 justify-start gap-1 overflow-x-auto">
                             {availableDates.map((date) => (
                                 <button
                                     key={date}
