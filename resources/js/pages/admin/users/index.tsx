@@ -1,9 +1,11 @@
 import { Head, router } from '@inertiajs/react';
-import { CheckCheck, Clock, ShieldAlert, ShieldCheck, User } from 'lucide-react';
+import { CheckCheck, Clock, Search, ShieldAlert, ShieldCheck, User } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
@@ -22,11 +24,13 @@ interface UserRow {
     email: string;
     role: Role;
     created_at: string;
+    last_login_at: string | null;
 }
 
 interface AdminUsersProps {
     users: UserRow[];
     pendingCount: number;
+    search: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -41,6 +45,11 @@ const roleLabels: Record<Role, string> = {
     admin: 'Admin',
 };
 
+function formatDate(iso: string | null): string {
+    if (!iso) return 'Never';
+    return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 const roleBadge = (role: Role) => {
     switch (role) {
         case 'admin':
@@ -54,7 +63,23 @@ const roleBadge = (role: Role) => {
     }
 };
 
-export default function AdminUsers({ users, pendingCount }: AdminUsersProps) {
+export default function AdminUsers({ users, pendingCount, search: initialSearch }: AdminUsersProps) {
+    const [search, setSearch] = useState(initialSearch);
+    const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        setSearch(initialSearch);
+    }, [initialSearch]);
+
+    const handleSearch = (value: string) => {
+        setSearch(value);
+        if (searchTimeout.current) clearTimeout(searchTimeout.current);
+        searchTimeout.current = setTimeout(() => {
+            router.get('/admin/users', { search: value || undefined }, { preserveState: true, replace: true });
+        }, 300);
+    };
+
     const updateRole = (userId: number, role: Role) => {
         router.patch(`/admin/users/${userId}/role`, { role }, { preserveScroll: true });
     };
@@ -87,7 +112,19 @@ export default function AdminUsers({ users, pendingCount }: AdminUsersProps) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>All Users ({users.length})</CardTitle>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <CardTitle>All Users ({users.length})</CardTitle>
+                            <div className="relative w-full sm:w-64">
+                                <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    ref={inputRef}
+                                    placeholder="Search by name or email…"
+                                    value={search}
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                    className="pl-8"
+                                />
+                            </div>
+                        </div>
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="divide-y">
@@ -104,6 +141,10 @@ export default function AdminUsers({ users, pendingCount }: AdminUsersProps) {
                                             {roleBadge(user.role)}
                                         </div>
                                         <p className="truncate text-sm text-muted-foreground">{user.email}</p>
+                                        <div className="mt-1 flex flex-wrap gap-x-4 text-xs text-muted-foreground">
+                                            <span>Joined {formatDate(user.created_at)}</span>
+                                            <span>Last login {formatDate(user.last_login_at)}</span>
+                                        </div>
                                     </div>
 
                                     <div className="flex shrink-0 items-center gap-2">

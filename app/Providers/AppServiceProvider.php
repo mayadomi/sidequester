@@ -5,8 +5,10 @@ namespace App\Providers;
 use App\Models\Event;
 use App\Policies\EventPolicy;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event as EventFacade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -28,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         Gate::policy(Event::class, EventPolicy::class);
+
+        EventFacade::listen(Login::class, function (Login $event): void {
+            $event->user->updateQuietly(['last_login_at' => now()]);
+        });
     }
 
     protected function configureDefaults(): void

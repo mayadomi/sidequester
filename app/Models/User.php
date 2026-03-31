@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'role',
         'password',
+        'last_login_at',
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
@@ -117,10 +119,12 @@ class User extends Authenticatable
     {
         if ($this->hasFavourited($event)) {
             $this->favouriteEvents()->detach($event->id);
+
             return false;
         }
 
         $this->favouriteEvents()->attach($event->id);
+
         return true;
     }
 }

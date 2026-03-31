@@ -12,19 +12,26 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $users = User::orderByRaw("CASE role
+        $search = $request->string('search')->trim()->toString();
+
+        $users = User::when($search, fn ($q) => $q->where(function ($q) use ($search): void {
+            $q->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        }))
+            ->orderByRaw("CASE role
                 WHEN 'editor_pending' THEN 0
                 WHEN 'admin'          THEN 1
                 WHEN 'editor'         THEN 2
                 ELSE 3 END")
             ->orderBy('name')
-            ->get(['id', 'name', 'email', 'role', 'created_at']);
+            ->get(['id', 'name', 'email', 'role', 'created_at', 'last_login_at']);
 
         return Inertia::render('admin/users/index', [
-            'users'        => $users,
-            'pendingCount' => $users->where('role', 'editor_pending')->count(),
+            'users' => $users,
+            'pendingCount' => User::where('role', 'editor_pending')->count(),
+            'search' => $search,
         ]);
     }
 
