@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\SponsorController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\EventPageController;
+use App\Http\Controllers\FavouritePageController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\ProfileEditorRequestController;
 use App\Http\Controllers\ScheduleController;
@@ -53,6 +54,9 @@ Route::prefix('api')->group(function () {
 // Authenticated routes (viewer and above)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
+
+    // Favourites page
+    Route::get('/favourites', [FavouritePageController::class, 'index'])->name('favourites.index');
 
     // Favourites API
     Route::prefix('api')->group(function () {

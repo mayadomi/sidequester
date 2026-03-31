@@ -31,7 +31,7 @@ const mainNavItems: NavItem[] = [
     { title: 'Events',        href: '/events',    icon: Calendar },
     { title: 'Schedule',      href: '/schedule',  icon: CalendarClock },
     { title: 'Map',           href: '/map',       icon: Map },
-    { title: 'My Favourites', href: '/dashboard', icon: Heart }, // TODO: dedicated page
+    { title: 'My Favourites', href: '/favourites', icon: Heart },
 ];
 
 const editorNavItems: NavItem[] = [
