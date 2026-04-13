@@ -16,7 +16,7 @@ class SponsorClaimController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('admin/sponsor-claims/index', [
+        return Inertia::render('admin/event-host-claims/index', [
             'claims' => SponsorClaim::with(['user', 'sponsor', 'verifiedBy'])
                 ->pending()
                 ->latest()

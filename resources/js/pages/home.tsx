@@ -57,7 +57,7 @@ export default function Home({ upcomingEvents }: HomeProps) {
         <>
             <Head title={`${name} — Tour Down Under Event Guide`} />
             <div className="flex min-h-screen flex-col bg-background text-foreground">
-                <SiteNav isLoggedIn={isLoggedIn} userName={auth?.user?.name} />
+                <SiteNav isLoggedIn={isLoggedIn} />
                 <main className="flex-1">
                     <HeroSection isLoggedIn={isLoggedIn} festivalName={festivalName} />
                     <UpcomingEventsSection events={upcomingEvents} isLoggedIn={isLoggedIn} />
@@ -72,7 +72,7 @@ export default function Home({ upcomingEvents }: HomeProps) {
 
 // ─── Site nav ─────────────────────────────────────────────────────────────────
 
-function SiteNav({ isLoggedIn, userName }: { isLoggedIn: boolean; userName?: string }) {
+function SiteNav({ isLoggedIn }: { isLoggedIn: boolean }) {
     return (
         <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-sm">
             <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
@@ -384,10 +384,10 @@ function EventCarouselCard({ event, isLoggedIn }: { event: Event; isLoggedIn: bo
                         <Clock className="size-3.5 shrink-0" />
                         <span>{formatEventTime(event.start_datetime)} – {formatEventTime(event.end_datetime)}</span>
                     </div>
-                    {event.location && (
+                    {event.location_name && (
                         <div className="flex items-center gap-1.5">
                             <MapPin className="size-3.5 shrink-0" />
-                            <span className="truncate">{event.location.name}</span>
+                            <span className="truncate">{event.location_name}</span>
                         </div>
                     )}
                     {event.is_ride && event.ride_distance_km && (

@@ -7,14 +7,14 @@ use App\Models\User;
 // ── Access ────────────────────────────────────────────────────────────────────
 
 test('guest is redirected from admin sponsor claims', function () {
-    $this->get(route('admin.sponsor-claims.index'))->assertRedirect(route('login'));
+    $this->get(route('admin.event-host-claims.index'))->assertRedirect(route('login'));
 });
 
 test('viewer cannot access admin sponsor claims', function () {
     $viewer = User::factory()->create(['role' => 'viewer']);
 
     $this->actingAs($viewer)
-        ->get(route('admin.sponsor-claims.index'))
+        ->get(route('admin.event-host-claims.index'))
         ->assertForbidden();
 });
 
@@ -22,7 +22,7 @@ test('editor cannot access admin sponsor claims', function () {
     $editor = User::factory()->create(['role' => 'editor']);
 
     $this->actingAs($editor)
-        ->get(route('admin.sponsor-claims.index'))
+        ->get(route('admin.event-host-claims.index'))
         ->assertForbidden();
 });
 
@@ -31,10 +31,10 @@ test('admin can view sponsor claims page', function () {
     SponsorClaim::factory()->count(2)->create();
 
     $this->actingAs($admin)
-        ->get(route('admin.sponsor-claims.index'))
+        ->get(route('admin.event-host-claims.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('admin/sponsor-claims/index')
+            ->component('admin/event-host-claims/index')
             ->has('claims', 2)
             ->where('pendingCount', 2)
         );
@@ -54,7 +54,7 @@ test('admin can approve a claim_existing claim', function () {
     ]);
 
     $this->actingAs($admin)
-        ->post(route('admin.sponsor-claims.approve', $claim->id))
+        ->post(route('admin.event-host-claims.approve', $claim->id))
         ->assertRedirect();
 
     $claim->refresh();
@@ -77,7 +77,7 @@ test('admin approving a new_sponsor_request creates the sponsor', function () {
     ]);
 
     $this->actingAs($admin)
-        ->post(route('admin.sponsor-claims.approve', $claim->id), [
+        ->post(route('admin.event-host-claims.approve', $claim->id), [
             'sponsor_name' => 'Pedal Adelaide',
             'sponsor_website' => 'https://pedaladelaide.com.au',
         ])
@@ -96,7 +96,7 @@ test('admin cannot approve a new_sponsor_request without sponsor_name', function
     $claim = SponsorClaim::factory()->newSponsorRequest()->create();
 
     $this->actingAs($admin)
-        ->post(route('admin.sponsor-claims.approve', $claim->id), [])
+        ->post(route('admin.event-host-claims.approve', $claim->id), [])
         ->assertSessionHasErrors('sponsor_name');
 });
 
@@ -107,7 +107,7 @@ test('admin can reject a claim with a note', function () {
     $claim = SponsorClaim::factory()->create();
 
     $this->actingAs($admin)
-        ->post(route('admin.sponsor-claims.reject', $claim->id), [
+        ->post(route('admin.event-host-claims.reject', $claim->id), [
             'admin_note' => 'Could not verify your association.',
         ])
         ->assertRedirect();
@@ -124,7 +124,7 @@ test('admin can reject a claim without a note', function () {
     $claim = SponsorClaim::factory()->create();
 
     $this->actingAs($admin)
-        ->post(route('admin.sponsor-claims.reject', $claim->id))
+        ->post(route('admin.event-host-claims.reject', $claim->id))
         ->assertRedirect();
 
     expect($claim->fresh()->status)->toBe('rejected');

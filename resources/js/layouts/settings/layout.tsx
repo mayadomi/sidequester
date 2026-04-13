@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
+import { index as sponsorsIndex } from '@/actions/App/Http/Controllers/ProfileSponsorClaimController';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -10,7 +11,6 @@ import { edit as editAppearance } from '@/routes/appearance';
 import { edit } from '@/routes/profile';
 import { show } from '@/routes/two-factor';
 import { edit as editPassword } from '@/routes/user-password';
-import { index as sponsorsIndex } from '@/actions/App/Http/Controllers/ProfileSponsorClaimController';
 import { type NavItem, type SharedData } from '@/types';
 
 const baseNavItems: NavItem[] = [

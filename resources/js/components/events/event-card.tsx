@@ -176,10 +176,10 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                 </div>
 
                 {/* Location */}
-                {event.location && (
+                {event.location_name && (
                     <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <MapPin className="size-4 shrink-0" />
-                        <span className="truncate">{event.location.name}</span>
+                        <span className="truncate">{event.location_name}</span>
                     </div>
                 )}
 

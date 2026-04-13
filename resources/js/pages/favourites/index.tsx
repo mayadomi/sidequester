@@ -2,7 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { Clock, ExternalLink, Heart, List, Map as MapIcon, MapPin, Mountain, Route, X } from 'lucide-react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { MapLayerMouseEvent } from 'maplibre-gl';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Layer, Map as MapGL, Marker, Popup, Source } from 'react-map-gl/maplibre';
 
 import { EventCard } from '@/components/events';

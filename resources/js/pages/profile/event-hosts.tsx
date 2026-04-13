@@ -2,18 +2,11 @@ import { router, usePage } from '@inertiajs/react';
 import { Building2, CheckCircle, Clock, Plus, Tag, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
+import { destroy, store } from '@/actions/App/Http/Controllers/ProfileSponsorClaimController';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -28,7 +21,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import { destroy, store } from '@/actions/App/Http/Controllers/ProfileSponsorClaimController';
 import type { BreadcrumbItem, SharedData } from '@/types';
 
 interface Sponsor {
@@ -58,7 +50,7 @@ interface ProfileSponsorsProps {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Settings', href: '/settings/profile' },
-    { title: 'My Event Hosts', href: '/profile/sponsors' },
+    { title: 'My Event Hosts', href: '/profile/event-hosts' },
 ];
 
 const statusBadge = (status: SponsorClaim['status']) => {

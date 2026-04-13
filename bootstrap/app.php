@@ -9,6 +9,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -45,5 +48,15 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (\PDOException $e) use ($dbUnavailable) {
             return $dbUnavailable();
+        });
+
+        $exceptions->render(function (HttpException $e, Request $request) {
+            $status = $e->getStatusCode();
+
+            if (in_array($status, [403, 404])) {
+                return Inertia::render('error', ['status' => $status])
+                    ->toResponse($request)
+                    ->setStatusCode($status);
+            }
         });
     })->create();

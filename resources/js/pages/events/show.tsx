@@ -157,16 +157,16 @@ export default function EventShow({ event, can_edit }: EventShowProps) {
                                     <p className="text-sm text-muted-foreground">Event time</p>
                                 </div>
                             </div>
-                            {event.location && (
+                            {event.location_name && (
                                 <div className="flex items-start gap-3">
                                     <div className="rounded-lg bg-primary/10 p-2">
                                         <MapPin className="size-5 text-primary" />
                                     </div>
                                     <div>
-                                        <p className="font-medium">{event.location.name}</p>
-                                        {event.location.address && (
+                                        <p className="font-medium">{event.location_name}</p>
+                                        {event.location_address && (
                                             <p className="text-sm text-muted-foreground">
-                                                {event.location.address}
+                                                {event.location_address}
                                             </p>
                                         )}
                                     </div>

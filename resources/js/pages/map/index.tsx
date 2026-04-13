@@ -1,8 +1,8 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, Clock, ExternalLink, Layers, MapPin, Mountain, Route, X } from 'lucide-react';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MapLayerMouseEvent } from 'maplibre-gl';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Layer, Map as MapGL, Marker, Popup, Source } from 'react-map-gl/maplibre';
 
 import { FavouriteButton } from '@/components/events/favourite-button';

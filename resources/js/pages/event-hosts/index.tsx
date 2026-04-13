@@ -23,7 +23,7 @@ interface SponsorsIndexProps {
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Sponsors', href: '/sponsors' },
+    { title: 'Event Hosts', href: '/event-hosts' },
 ];
 
 export default function SponsorsIndex({ sponsors, isAdmin }: SponsorsIndexProps) {
@@ -73,8 +73,8 @@ export default function SponsorsIndex({ sponsors, isAdmin }: SponsorsIndexProps)
                                         <div className="grid gap-6 sm:grid-cols-2">
                                             <ImageUpload
                                                 currentUrl={sponsor.logo_square_url || null}
-                                                uploadRoute={`/sponsors/${sponsor.slug}/images/logo_square`}
-                                                deleteRoute={`/sponsors/${sponsor.slug}/images/logo_square`}
+                                                uploadRoute={`/event-hosts/${sponsor.slug}/images/logo_square`}
+                                                deleteRoute={`/event-hosts/${sponsor.slug}/images/logo_square`}
                                                 fieldName="image"
                                                 label="Square logo"
                                                 hint="Used in event cards. Recommended: 200×200px."
@@ -82,8 +82,8 @@ export default function SponsorsIndex({ sponsors, isAdmin }: SponsorsIndexProps)
                                             />
                                             <ImageUpload
                                                 currentUrl={sponsor.logo_rect_url || null}
-                                                uploadRoute={`/sponsors/${sponsor.slug}/images/logo_rect`}
-                                                deleteRoute={`/sponsors/${sponsor.slug}/images/logo_rect`}
+                                                uploadRoute={`/event-hosts/${sponsor.slug}/images/logo_rect`}
+                                                deleteRoute={`/event-hosts/${sponsor.slug}/images/logo_rect`}
                                                 fieldName="image"
                                                 label="Rectangular logo"
                                                 hint="Used in banners and headers. Recommended: 400×100px."
@@ -98,8 +98,8 @@ export default function SponsorsIndex({ sponsors, isAdmin }: SponsorsIndexProps)
                                         <div className="grid gap-6 sm:grid-cols-2">
                                             <ImageUpload
                                                 currentUrl={sponsor.logo_square_dark_url || null}
-                                                uploadRoute={`/sponsors/${sponsor.slug}/images/logo_square_dark`}
-                                                deleteRoute={`/sponsors/${sponsor.slug}/images/logo_square_dark`}
+                                                uploadRoute={`/event-hosts/${sponsor.slug}/images/logo_square_dark`}
+                                                deleteRoute={`/event-hosts/${sponsor.slug}/images/logo_square_dark`}
                                                 fieldName="image"
                                                 label="Square logo"
                                                 hint="Used in event cards. Recommended: 200×200px."
@@ -107,8 +107,8 @@ export default function SponsorsIndex({ sponsors, isAdmin }: SponsorsIndexProps)
                                             />
                                             <ImageUpload
                                                 currentUrl={sponsor.logo_rect_dark_url || null}
-                                                uploadRoute={`/sponsors/${sponsor.slug}/images/logo_rect_dark`}
-                                                deleteRoute={`/sponsors/${sponsor.slug}/images/logo_rect_dark`}
+                                                uploadRoute={`/event-hosts/${sponsor.slug}/images/logo_rect_dark`}
+                                                deleteRoute={`/event-hosts/${sponsor.slug}/images/logo_rect_dark`}
                                                 fieldName="image"
                                                 label="Rectangular logo"
                                                 hint="Used in banners and headers. Recommended: 400×100px."

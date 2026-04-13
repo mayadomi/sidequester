@@ -7,17 +7,17 @@ use App\Models\User;
 // ── Access ────────────────────────────────────────────────────────────────────
 
 test('guest is redirected from profile sponsors page', function () {
-    $this->get(route('profile.sponsors.index'))->assertRedirect(route('login'));
+    $this->get(route('profile.event-hosts.index'))->assertRedirect(route('login'));
 });
 
 test('editor can view their sponsors page', function () {
     $editor = User::factory()->create(['role' => 'editor']);
 
     $this->actingAs($editor)
-        ->get(route('profile.sponsors.index'))
+        ->get(route('profile.event-hosts.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('profile/sponsors')
+            ->component('profile/event-hosts')
             ->has('claims')
             ->has('availableSponsors')
         );
@@ -28,7 +28,7 @@ test('viewer cannot submit a claim', function () {
     $sponsor = Sponsor::factory()->create();
 
     $this->actingAs($viewer)
-        ->post(route('profile.sponsors.store'), [
+        ->post(route('profile.event-hosts.store'), [
             'request_type' => 'claim_existing',
             'sponsor_id' => $sponsor->id,
         ])
@@ -42,7 +42,7 @@ test('editor can submit a claim for an existing sponsor', function () {
     $sponsor = Sponsor::factory()->create();
 
     $this->actingAs($editor)
-        ->post(route('profile.sponsors.store'), [
+        ->post(route('profile.event-hosts.store'), [
             'request_type' => 'claim_existing',
             'sponsor_id' => $sponsor->id,
             'editor_note' => 'I am the events coordinator.',
@@ -69,7 +69,7 @@ test('editor cannot claim the same sponsor twice when one is pending', function 
     ]);
 
     $this->actingAs($editor)
-        ->post(route('profile.sponsors.store'), [
+        ->post(route('profile.event-hosts.store'), [
             'request_type' => 'claim_existing',
             'sponsor_id' => $sponsor->id,
         ])
@@ -86,7 +86,7 @@ test('editor cannot claim the same sponsor twice when one is already verified', 
     ]);
 
     $this->actingAs($editor)
-        ->post(route('profile.sponsors.store'), [
+        ->post(route('profile.event-hosts.store'), [
             'request_type' => 'claim_existing',
             'sponsor_id' => $sponsor->id,
         ])
@@ -97,7 +97,7 @@ test('claim_existing requires sponsor_id', function () {
     $editor = User::factory()->create(['role' => 'editor']);
 
     $this->actingAs($editor)
-        ->post(route('profile.sponsors.store'), [
+        ->post(route('profile.event-hosts.store'), [
             'request_type' => 'claim_existing',
         ])
         ->assertSessionHasErrors('sponsor_id');
@@ -109,7 +109,7 @@ test('editor can submit a new sponsor request', function () {
     $editor = User::factory()->create(['role' => 'editor']);
 
     $this->actingAs($editor)
-        ->post(route('profile.sponsors.store'), [
+        ->post(route('profile.event-hosts.store'), [
             'request_type' => 'new_sponsor_request',
             'proposed_sponsor_name' => 'Pedal Adelaide',
             'proposed_sponsor_website' => 'https://pedaladelaide.com.au',
@@ -130,7 +130,7 @@ test('new_sponsor_request requires proposed_sponsor_name', function () {
     $editor = User::factory()->create(['role' => 'editor']);
 
     $this->actingAs($editor)
-        ->post(route('profile.sponsors.store'), [
+        ->post(route('profile.event-hosts.store'), [
             'request_type' => 'new_sponsor_request',
         ])
         ->assertSessionHasErrors('proposed_sponsor_name');
@@ -143,7 +143,7 @@ test('editor can withdraw their own pending claim', function () {
     $claim = SponsorClaim::factory()->create(['user_id' => $editor->id, 'status' => 'pending']);
 
     $this->actingAs($editor)
-        ->delete(route('profile.sponsors.destroy', $claim->id))
+        ->delete(route('profile.event-hosts.destroy', $claim->id))
         ->assertRedirect();
 
     $this->assertDatabaseMissing('sponsor_user', ['id' => $claim->id]);
@@ -155,7 +155,7 @@ test('editor cannot withdraw another user\'s pending claim', function () {
     $claim = SponsorClaim::factory()->create(['user_id' => $otherEditor->id, 'status' => 'pending']);
 
     $this->actingAs($editor)
-        ->delete(route('profile.sponsors.destroy', $claim->id))
+        ->delete(route('profile.event-hosts.destroy', $claim->id))
         ->assertForbidden();
 });
 
@@ -164,6 +164,6 @@ test('editor cannot withdraw a verified claim', function () {
     $claim = SponsorClaim::factory()->verified()->create(['user_id' => $editor->id]);
 
     $this->actingAs($editor)
-        ->delete(route('profile.sponsors.destroy', $claim->id))
+        ->delete(route('profile.event-hosts.destroy', $claim->id))
         ->assertForbidden();
 });

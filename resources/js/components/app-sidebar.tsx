@@ -1,7 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { Building2, Calendar, CalendarClock, ClockAlert, Folder, Heart, LayoutGrid, Map, Monitor, Moon, NotebookPen, Plus, Settings, Shield, Sun, Users } from 'lucide-react';
 
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -21,6 +20,7 @@ import {
     SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { useAppearance } from '@/hooks/use-appearance';
+import { toUrl } from '@/lib/utils';
 import { home, welcome } from '@/routes';
 import type { NavItem, SharedData } from '@/types';
 
@@ -36,17 +36,17 @@ const publicNavItems: NavItem[] = [
 const editorNavItems: NavItem[] = [
     { title: 'My Events',        href: '/profile/events',   icon: NotebookPen },
     { title: 'Create Event',     href: '/events/create',    icon: Plus },
-    { title: 'My Event Hosts',   href: '/profile/sponsors', icon: Building2 },
+    { title: 'My Event Hosts',   href: '/profile/event-hosts', icon: Building2 },
 ];
 
 const editorOnlyNavItems: NavItem[] = [
-    { title: 'Manage Logos', href: '/sponsors', icon: Settings },
+    { title: 'Event Hosts', href: '/event-hosts', icon: Settings },
 ];
 
 const adminNavItems: NavItem[] = [
-    { title: 'Sponsors',        href: '/sponsors',              icon: Settings },
+    { title: 'Event Hosts',     href: '/event-hosts',           icon: Settings },
     { title: 'Users',           href: '/admin/users',           icon: Users },
-    { title: 'Sponsor Claims',  href: '/admin/sponsor-claims',  icon: Building2 },
+    { title: 'Event Host Claims', href: '/admin/event-host-claims', icon: Building2 },
 ];
 
 const footerNavItems: NavItem[] = [
@@ -147,10 +147,24 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
-
-                {/* Appearance toggle — uses SidebarMenuButton so it centres correctly when collapsed */}
                 <SidebarMenu>
+                    {/* Footer links (e.g. Repository) */}
+                    {footerNavItems.map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton
+                                asChild
+                                tooltip={item.title}
+                                className="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
+                            >
+                                <a href={toUrl(item.href)} target="_blank" rel="noopener noreferrer">
+                                    {item.icon && <item.icon className="size-4" />}
+                                    <span>{item.title}</span>
+                                </a>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+
+                    {/* Appearance toggle */}
                     <SidebarMenuItem>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>

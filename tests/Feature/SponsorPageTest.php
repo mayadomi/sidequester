@@ -7,14 +7,14 @@ use App\Models\User;
 // ── Access ────────────────────────────────────────────────────────────────────
 
 test('guest is redirected from sponsors page', function () {
-    $this->get(route('sponsors.index'))->assertRedirect(route('login'));
+    $this->get(route('event-hosts.index'))->assertRedirect(route('login'));
 });
 
 test('viewer cannot access sponsors page', function () {
     $viewer = User::factory()->create(['role' => 'viewer']);
 
     $this->actingAs($viewer)
-        ->get(route('sponsors.index'))
+        ->get(route('event-hosts.index'))
         ->assertForbidden();
 });
 
@@ -22,18 +22,18 @@ test('editor can access sponsors page', function () {
     $editor = User::factory()->create(['role' => 'editor']);
 
     $this->actingAs($editor)
-        ->get(route('sponsors.index'))
+        ->get(route('event-hosts.index'))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('sponsors/index'));
+        ->assertInertia(fn ($page) => $page->component('event-hosts/index'));
 });
 
 test('admin can access sponsors page', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 
     $this->actingAs($admin)
-        ->get(route('sponsors.index'))
+        ->get(route('event-hosts.index'))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('sponsors/index'));
+        ->assertInertia(fn ($page) => $page->component('event-hosts/index'));
 });
 
 // ── Filtered results ──────────────────────────────────────────────────────────
@@ -49,10 +49,10 @@ test('editor only sees their verified sponsors', function () {
     ]);
 
     $this->actingAs($editor)
-        ->get(route('sponsors.index'))
+        ->get(route('event-hosts.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('sponsors/index')
+            ->component('event-hosts/index')
             ->has('sponsors', 1)
             ->where('sponsors.0.id', $verifiedSponsor->id)
             ->where('isAdmin', false)
@@ -64,7 +64,7 @@ test('editor with no verified sponsors sees empty list', function () {
     Sponsor::factory()->create();
 
     $this->actingAs($editor)
-        ->get(route('sponsors.index'))
+        ->get(route('event-hosts.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->has('sponsors', 0));
 });
@@ -80,7 +80,7 @@ test('editor with only a pending claim does not see that sponsor', function () {
     ]);
 
     $this->actingAs($editor)
-        ->get(route('sponsors.index'))
+        ->get(route('event-hosts.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->has('sponsors', 0));
 });
@@ -90,7 +90,7 @@ test('admin sees all sponsors', function () {
     Sponsor::factory()->count(3)->create();
 
     $this->actingAs($admin)
-        ->get(route('sponsors.index'))
+        ->get(route('event-hosts.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('sponsors', 3)
@@ -105,7 +105,7 @@ test('editor cannot upload image for a sponsor they are not verified with', func
     $sponsor = Sponsor::factory()->create();
 
     $this->actingAs($editor)
-        ->post(route('sponsors.image.upload', [$sponsor->slug, 'logo_square']), [
+        ->post(route('event-hosts.image.upload', [$sponsor->slug, 'logo_square']), [
             'image' => \Illuminate\Http\UploadedFile::fake()->image('logo.png'),
         ])
         ->assertForbidden();
@@ -121,7 +121,7 @@ test('editor can upload image for their verified sponsor', function () {
     ]);
 
     $this->actingAs($editor)
-        ->post(route('sponsors.image.upload', [$sponsor->slug, 'logo_square']), [
+        ->post(route('event-hosts.image.upload', [$sponsor->slug, 'logo_square']), [
             'image' => \Illuminate\Http\UploadedFile::fake()->image('logo.png', 200, 200),
         ])
         ->assertRedirect();
@@ -132,7 +132,7 @@ test('editor cannot delete image for a sponsor they are not verified with', func
     $sponsor = Sponsor::factory()->create();
 
     $this->actingAs($editor)
-        ->delete(route('sponsors.image.delete', [$sponsor->slug, 'logo_square']))
+        ->delete(route('event-hosts.image.delete', [$sponsor->slug, 'logo_square']))
         ->assertForbidden();
 });
 
@@ -141,7 +141,7 @@ test('admin can upload image for any sponsor', function () {
     $sponsor = Sponsor::factory()->create();
 
     $this->actingAs($admin)
-        ->post(route('sponsors.image.upload', [$sponsor->slug, 'logo_square']), [
+        ->post(route('event-hosts.image.upload', [$sponsor->slug, 'logo_square']), [
             'image' => \Illuminate\Http\UploadedFile::fake()->image('logo.png', 200, 200),
         ])
         ->assertRedirect();

@@ -1,5 +1,5 @@
-import { router } from '@inertiajs/react';
 import type { FormDataConvertible } from '@inertiajs/core';
+import { router } from '@inertiajs/react';
 import { Loader2, Search, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 

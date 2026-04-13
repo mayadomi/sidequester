@@ -2,9 +2,10 @@ import { Head, router } from '@inertiajs/react';
 import { Building2, CheckCircle, Clock, Tag, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
+import { approve, reject } from '@/actions/App/Http/Controllers/Admin/SponsorClaimController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -17,7 +18,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { approve, reject } from '@/actions/App/Http/Controllers/Admin/SponsorClaimController';
 import type { BreadcrumbItem } from '@/types';
 
 interface User {
@@ -43,21 +43,21 @@ interface SponsorClaimRow {
     created_at: string;
 }
 
-interface AdminSponsorClaimsProps {
+interface AdminEventHostClaimsProps {
     claims: SponsorClaimRow[];
     pendingCount: number;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: '/admin/users' },
-    { title: 'Sponsor Claims', href: '/admin/sponsor-claims' },
+    { title: 'Event Host Claims', href: '/admin/event-host-claims' },
 ];
 
 function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-export default function AdminSponsorClaims({ claims, pendingCount }: AdminSponsorClaimsProps) {
+export default function AdminEventHostClaims({ claims, pendingCount }: AdminEventHostClaimsProps) {
     const [approvingClaim, setApprovingClaim] = useState<SponsorClaimRow | null>(null);
     const [rejectingClaim, setRejectingClaim] = useState<SponsorClaimRow | null>(null);
     const [sponsorName, setSponsorName] = useState('');
@@ -101,14 +101,14 @@ export default function AdminSponsorClaims({ claims, pendingCount }: AdminSponso
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Sponsor Claims | Admin" />
+            <Head title="Event Host Claims | Admin" />
 
             <div className="flex flex-col gap-6 p-4 lg:p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Sponsor Claims</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">Event Host Claims</h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Review and approve editor sponsor associations.
+                            Review and approve editor event host associations.
                         </p>
                     </div>
                     {pendingCount > 0 && (
@@ -124,7 +124,7 @@ export default function AdminSponsorClaims({ claims, pendingCount }: AdminSponso
                         <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                             <CheckCircle className="mb-4 size-10 text-green-500/60" />
                             <h3 className="text-lg font-medium">All caught up</h3>
-                            <p className="mt-1 text-sm text-muted-foreground">No pending sponsor claims to review.</p>
+                            <p className="mt-1 text-sm text-muted-foreground">No pending event host claims to review.</p>
                         </CardContent>
                     </Card>
                 ) : (
@@ -143,7 +143,7 @@ export default function AdminSponsorClaims({ claims, pendingCount }: AdminSponso
                                                 <span className="text-sm font-medium">{claim.user.name}</span>
                                                 <span className="text-xs text-muted-foreground">{claim.user.email}</span>
                                                 <Badge variant="outline" className="text-xs">
-                                                    {claim.request_type === 'claim_existing' ? 'Claim existing' : 'New sponsor'}
+                                                    {claim.request_type === 'claim_existing' ? 'Claim existing' : 'New event host'}
                                                 </Badge>
                                             </div>
                                             <p className="text-sm text-muted-foreground">
@@ -194,10 +194,10 @@ export default function AdminSponsorClaims({ claims, pendingCount }: AdminSponso
             <Dialog open={!!approvingClaim} onOpenChange={(open) => !open && setApprovingClaim(null)}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Approve sponsor claim</DialogTitle>
+                        <DialogTitle>Approve event host claim</DialogTitle>
                         <DialogDescription>
                             {approvingClaim?.request_type === 'new_sponsor_request'
-                                ? 'Confirm the sponsor details below. A new sponsor record will be created.'
+                                ? 'Confirm the event host details below. A new event host record will be created.'
                                 : `Verify that ${approvingClaim?.user.name} represents ${approvingClaim?.sponsor?.name}.`
                             }
                         </DialogDescription>
@@ -205,7 +205,7 @@ export default function AdminSponsorClaims({ claims, pendingCount }: AdminSponso
                     {approvingClaim?.request_type === 'new_sponsor_request' && (
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="new-sponsor-name">Sponsor name</Label>
+                                <Label htmlFor="new-sponsor-name">Event host name</Label>
                                 <Input
                                     id="new-sponsor-name"
                                     value={sponsorName}
@@ -240,7 +240,7 @@ export default function AdminSponsorClaims({ claims, pendingCount }: AdminSponso
             <Dialog open={!!rejectingClaim} onOpenChange={(open) => !open && setRejectingClaim(null)}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Reject sponsor claim</DialogTitle>
+                        <DialogTitle>Reject event host claim</DialogTitle>
                         <DialogDescription>
                             Optionally leave a note explaining why the claim was rejected.
                         </DialogDescription>
@@ -249,7 +249,7 @@ export default function AdminSponsorClaims({ claims, pendingCount }: AdminSponso
                         <Label htmlFor="admin-note">Note for editor <span className="text-muted-foreground">(optional)</span></Label>
                         <Textarea
                             id="admin-note"
-                            placeholder="e.g. Could not verify your association with this sponsor."
+                            placeholder="e.g. Could not verify your association with this event host."
                             value={adminNote}
                             onChange={e => setAdminNote(e.target.value)}
                             rows={3}

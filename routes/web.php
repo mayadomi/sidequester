@@ -70,20 +70,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('profile.cancel-editor-request');
 
     // Sponsor claims (editors manage their own associations)
-    Route::get('/profile/sponsors', [ProfileSponsorClaimController::class, 'index'])
-        ->name('profile.sponsors.index');
-    Route::post('/profile/sponsors', [ProfileSponsorClaimController::class, 'store'])
-        ->name('profile.sponsors.store');
-    Route::delete('/profile/sponsors/{sponsorClaim}', [ProfileSponsorClaimController::class, 'destroy'])
-        ->name('profile.sponsors.destroy');
+    Route::get('/profile/event-hosts', [ProfileSponsorClaimController::class, 'index'])
+        ->name('profile.event-hosts.index');
+    Route::post('/profile/event-hosts', [ProfileSponsorClaimController::class, 'store'])
+        ->name('profile.event-hosts.store');
+    Route::delete('/profile/event-hosts/{sponsorClaim}', [ProfileSponsorClaimController::class, 'destroy'])
+        ->name('profile.event-hosts.destroy');
 });
 
 // Editor + Admin routes (create/edit events, manage organising bodies)
 Route::middleware(['auth', 'verified', 'editor'])->group(function () {
     // Organising body management (logo uploads etc.) — editors see only their verified bodies
-    Route::get('/sponsors', [SponsorPageController::class, 'index'])->name('sponsors.index');
-    Route::post('/sponsors/{sponsor:slug}/images/{collection}', [SponsorPageController::class, 'uploadImage'])->name('sponsors.image.upload');
-    Route::delete('/sponsors/{sponsor:slug}/images/{collection}', [SponsorPageController::class, 'deleteImage'])->name('sponsors.image.delete');
+    Route::get('/event-hosts', [SponsorPageController::class, 'index'])->name('event-hosts.index');
+    Route::post('/event-hosts/{sponsor:slug}/images/{collection}', [SponsorPageController::class, 'uploadImage'])->name('event-hosts.image.upload');
+    Route::delete('/event-hosts/{sponsor:slug}/images/{collection}', [SponsorPageController::class, 'deleteImage'])->name('event-hosts.image.delete');
 
     // My Events (events created by this user)
     Route::get('/profile/events', [ProfileEventController::class, 'index'])->name('profile.events.index');
@@ -113,9 +113,9 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::patch('/users/{user}/role', [AdminUserController::class, 'updateRole'])->name('users.update-role');
 
         // Sponsor claim review queue
-        Route::get('/sponsor-claims', [AdminSponsorClaimController::class, 'index'])->name('sponsor-claims.index');
-        Route::post('/sponsor-claims/{sponsorClaim}/approve', [AdminSponsorClaimController::class, 'approve'])->name('sponsor-claims.approve');
-        Route::post('/sponsor-claims/{sponsorClaim}/reject', [AdminSponsorClaimController::class, 'reject'])->name('sponsor-claims.reject');
+        Route::get('/event-host-claims', [AdminSponsorClaimController::class, 'index'])->name('event-host-claims.index');
+        Route::post('/event-host-claims/{sponsorClaim}/approve', [AdminSponsorClaimController::class, 'approve'])->name('event-host-claims.approve');
+        Route::post('/event-host-claims/{sponsorClaim}/reject', [AdminSponsorClaimController::class, 'reject'])->name('event-host-claims.reject');
     });
 });
 

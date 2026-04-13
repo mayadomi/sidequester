@@ -14,7 +14,7 @@ class ProfileSponsorClaimController extends Controller
 {
     public function index(Request $request): Response
     {
-        return Inertia::render('profile/sponsors', [
+        return Inertia::render('profile/event-hosts', [
             'claims' => SponsorClaim::where('user_id', $request->user()->id)
                 ->with('sponsor')
                 ->latest()

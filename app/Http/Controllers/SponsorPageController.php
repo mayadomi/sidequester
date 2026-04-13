@@ -36,7 +36,7 @@ class SponsorPageController extends Controller
             'logo_rect_dark_url' => $s->getFirstMediaUrl('logo_rect_dark', 'display'),
         ]);
 
-        return Inertia::render('sponsors/index', [
+        return Inertia::render('event-hosts/index', [
             'sponsors' => $sponsors,
             'isAdmin' => $user->isAdmin(),
         ]);

@@ -72,7 +72,7 @@ export function LocationSearch({ value, onChange, error }: LocationSearchProps) 
         if (value && mapRef.current) {
             mapRef.current.flyTo({ center: [value.lng, value.lat], zoom: 14, duration: 600 });
         }
-    }, [value?.lat, value?.lng]);
+    }, [value]);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
