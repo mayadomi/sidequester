@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { LocationResult } from '@/components/ui/location-search';
+import { LocationSearch } from '@/components/ui/location-search';
 import {
     Select,
     SelectContent,
@@ -27,7 +29,6 @@ interface SimpleOption {
 interface EventCreateProps {
     categories: SimpleOption[];
     sponsors: SimpleOption[];
-    locations: SimpleOption[];
     tags: SimpleOption[];
 }
 
@@ -38,7 +39,10 @@ type FormData = {
     end_datetime: string;
     category_id: string;
     sponsor_id: string;
-    location_id: string;
+    location_name: string;
+    location_address: string;
+    location_lat: string;
+    location_lng: string;
     pace: string;
     route_url: string;
     url: string;
@@ -60,7 +64,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Create Event', href: '/events/create' },
 ];
 
-export default function EventCreate({ categories, sponsors, locations, tags }: EventCreateProps) {
+export default function EventCreate({ categories, sponsors, tags }: EventCreateProps) {
     const { data, setData, post, processing, errors } = useForm<FormData>({
         title: '',
         description: '',
@@ -68,7 +72,10 @@ export default function EventCreate({ categories, sponsors, locations, tags }: E
         end_datetime: '',
         category_id: '',
         sponsor_id: '',
-        location_id: '',
+        location_name: '',
+        location_address: '',
+        location_lat: '',
+        location_lng: '',
         pace: '',
         route_url: '',
         url: '',
@@ -84,6 +91,19 @@ export default function EventCreate({ categories, sponsors, locations, tags }: E
         gpx: null,
         route_geojson: '',
     });
+
+    const [locationValue, setLocationValue] = useState<LocationResult | null>(null);
+
+    const handleLocationChange = (result: LocationResult | null) => {
+        setLocationValue(result);
+        setData((prev) => ({
+            ...prev,
+            location_name: result?.name ?? '',
+            location_address: result?.address ?? '',
+            location_lat: result?.lat?.toString() ?? '',
+            location_lng: result?.lng?.toString() ?? '',
+        }));
+    };
 
     const gpxInputRef = useRef<HTMLInputElement>(null);
     const [gpxParsing, setGpxParsing] = useState(false);
@@ -283,25 +303,16 @@ export default function EventCreate({ categories, sponsors, locations, tags }: E
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="location_id">Location</Label>
-                                <Select
-                                    value={data.location_id}
-                                    onValueChange={(v) => setData('location_id', v === 'none' ? '' : v)}
-                                >
-                                    <SelectTrigger id="location_id">
-                                        <SelectValue placeholder="No location" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="none">No location</SelectItem>
-                                        {locations.map((loc) => (
-                                            <SelectItem key={loc.id} value={loc.id.toString()}>
-                                                {loc.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.location_id && (
-                                    <p className="text-sm text-destructive">{errors.location_id}</p>
+                                <Label>Location</Label>
+                                <LocationSearch
+                                    value={locationValue}
+                                    onChange={handleLocationChange}
+                                    error={errors.location_lat ?? errors.location_lng}
+                                />
+                                {(errors.location_lat ?? errors.location_lng) && (
+                                    <p className="text-sm text-destructive">
+                                        {errors.location_lat ?? errors.location_lng}
+                                    </p>
                                 )}
                             </div>
                         </CardContent>

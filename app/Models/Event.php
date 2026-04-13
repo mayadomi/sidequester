@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -40,7 +41,10 @@ class Event extends Model implements HasMedia
         'min_cost',
         'max_cost',
         'is_free',
-        'route_geojson',
+        'location_name',
+        'location_address',
+        'location_lat',
+        'location_lng',
     ];
 
     /**
@@ -59,7 +63,8 @@ class Event extends Model implements HasMedia
         'min_cost' => 'decimal:2',
         'max_cost' => 'decimal:2',
         'is_free' => 'boolean',
-        'route_geojson' => 'array',
+        'location_lat' => 'decimal:7',
+        'location_lng' => 'decimal:7',
     ];
 
     /**
@@ -382,6 +387,97 @@ class Event extends Model implements HasMedia
         }
 
         return $query;
+    }
+
+    /**
+     * Scope: append ST_AsGeoJSON(route_geometry) as derived_route_geojson for map rendering.
+     * No-op on non-PostgreSQL connections (e.g. SQLite in tests).
+     */
+    public function scopeWithDerivedRouteGeojson(Builder $query): Builder
+    {
+        if (DB::getDriverName() === 'pgsql') {
+            $table = $query->getModel()->getTable();
+
+            return $query
+                ->addSelect("{$table}.*")
+                ->addSelect(DB::raw('ST_AsGeoJSON(route_geometry) as derived_route_geojson'));
+        }
+
+        return $query;
+    }
+
+    /**
+     * Build a GeoJSON FeatureCollection for MapLibre, sourced from the PostGIS
+     * route_geometry column when available, falling back to the stored JSON blob.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getRouteFeatureCollectionAttribute(): ?array
+    {
+        $derived = $this->attributes['derived_route_geojson'] ?? null;
+
+        if (! $derived) {
+            return null;
+        }
+
+        return [
+            'type' => 'FeatureCollection',
+            'features' => [[
+                'type' => 'Feature',
+                'geometry' => json_decode($derived, true),
+                'properties' => (object) [],
+            ]],
+        ];
+    }
+
+    /**
+     * Sync route_geometry from the stored route_geojson on PostgreSQL.
+     * Call this after saving or clearing route_geojson.
+     */
+    public function syncRouteGeometry(array $featureCollection): void
+    {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
+        $lineString = collect($featureCollection['features'] ?? [])
+            ->first(fn ($f) => ($f['geometry']['type'] ?? '') === 'LineString');
+
+        if (! $lineString) {
+            return;
+        }
+
+        DB::statement(
+            'UPDATE events SET route_geometry = ST_Force2D(ST_GeomFromGeoJSON(?)) WHERE id = ?',
+            [json_encode($lineString['geometry']), $this->id]
+        );
+    }
+
+    public function syncLocationGeometry(): void
+    {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
+        if ($this->location_lat === null || $this->location_lng === null) {
+            DB::statement('UPDATE events SET location_geometry = NULL WHERE id = ?', [$this->id]);
+
+            return;
+        }
+
+        DB::statement(
+            'UPDATE events SET location_geometry = ST_SetSRID(ST_MakePoint(?, ?), 4326) WHERE id = ?',
+            [(float) $this->location_lng, (float) $this->location_lat, $this->id],
+        );
+    }
+
+    public function clearRouteGeometry(): void
+    {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
+        DB::statement('UPDATE events SET route_geometry = NULL WHERE id = ?', [$this->id]);
     }
 
     public function registerMediaCollections(): void

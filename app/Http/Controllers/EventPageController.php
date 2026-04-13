@@ -109,7 +109,6 @@ class EventPageController extends Controller
             'sponsors' => $user->isAdmin()
                 ? Sponsor::orderBy('name')->get(['id', 'name'])
                 : $user->verifiedSponsors()->orderBy('sponsors.name')->get(['sponsors.id', 'sponsors.name']),
-            'locations' => Location::orderBy('name')->get(['id', 'name']),
             'tags' => Tag::orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -125,11 +124,12 @@ class EventPageController extends Controller
         ]);
 
         $event->tags()->sync($request->input('tag_ids', []));
+        $event->syncLocationGeometry();
 
         if ($request->hasFile('gpx')) {
             $geojson = json_decode($request->input('route_geojson'), true);
             $event->addMediaFromRequest('gpx')->toMediaCollection('route_gpx');
-            $event->update(['route_geojson' => $geojson]);
+            $event->syncRouteGeometry($geojson);
         }
 
         return redirect()->route('events.show', $event)
@@ -155,7 +155,10 @@ class EventPageController extends Controller
                 'end_datetime' => $event->end_datetime->format('Y-m-d\TH:i'),
                 'category_id' => $event->category_id,
                 'sponsor_id' => $event->sponsor_id,
-                'location_id' => $event->location_id,
+                'location_name' => $event->location_name,
+                'location_address' => $event->location_address,
+                'location_lat' => $event->location_lat !== null ? (float) $event->location_lat : null,
+                'location_lng' => $event->location_lng !== null ? (float) $event->location_lng : null,
                 'pace' => $event->pace,
                 'route_url' => $event->route_url,
                 'url' => $event->url,
@@ -176,7 +179,6 @@ class EventPageController extends Controller
             'sponsors' => $user->isAdmin()
                 ? Sponsor::orderBy('name')->get(['id', 'name'])
                 : $user->verifiedSponsors()->orderBy('sponsors.name')->get(['sponsors.id', 'sponsors.name']),
-            'locations' => Location::orderBy('name')->get(['id', 'name']),
             'tags' => Tag::orderBy('name')->get(['id', 'name']),
         ]);
     }
@@ -188,6 +190,7 @@ class EventPageController extends Controller
     {
         $event->update($request->safe()->except('tag_ids'));
         $event->tags()->sync($request->input('tag_ids', []));
+        $event->syncLocationGeometry();
 
         return redirect()->route('events.show', $event);
     }
@@ -236,11 +239,8 @@ class EventPageController extends Controller
             return back()->withErrors(['route_geojson' => 'Invalid GeoJSON data.']);
         }
 
-        // Store original GPX for future re-processing (e.g. PostGIS migration)
         $event->addMediaFromRequest('gpx')->toMediaCollection('route_gpx');
-
-        // Store the processed GeoJSON for fast map rendering
-        $event->update(['route_geojson' => $geojson]);
+        $event->syncRouteGeometry($geojson);
 
         return back()->with('success', 'Route uploaded.');
     }
@@ -252,7 +252,7 @@ class EventPageController extends Controller
     {
         $this->authorize('manageRoute', $event);
         $event->clearMediaCollection('route_gpx');
-        $event->update(['route_geojson' => null]);
+        $event->clearRouteGeometry();
 
         return back()->with('success', 'Route removed.');
     }

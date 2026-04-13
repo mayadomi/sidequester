@@ -57,12 +57,10 @@ it('allows an editor to upload a GPX route for their own event', function () use
     $response->assertRedirect();
 
     $event->refresh();
-    expect($event->route_geojson)->toBeArray()
-        ->and($event->route_geojson['type'])->toBe('FeatureCollection')
-        ->and($event->hasMedia('route_gpx'))->toBeTrue();
+    expect($event->hasMedia('route_gpx'))->toBeTrue();
 });
 
-it('stores the decoded GeoJSON on the event', function () use ($minimalGpx, $minimalGeojson) {
+it('stores the GPX file as media on the event', function () use ($minimalGpx, $minimalGeojson) {
     Storage::fake('public');
 
     $editor = makeEditor();
@@ -74,8 +72,8 @@ it('stores the decoded GeoJSON on the event', function () use ($minimalGpx, $min
     ]);
 
     $event->refresh();
-    expect($event->route_geojson['features'])->toHaveCount(1)
-        ->and($event->route_geojson['features'][0]['geometry']['type'])->toBe('LineString');
+    expect($event->hasMedia('route_gpx'))->toBeTrue()
+        ->and($event->getFirstMedia('route_gpx')->file_name)->toBe('route.gpx');
 });
 
 it('rejects upload when route_geojson is missing', function () use ($minimalGpx) {
@@ -155,8 +153,7 @@ it('allows an editor to delete the route from their own event', function () use 
     $response->assertRedirect();
 
     $event->refresh();
-    expect($event->route_geojson)->toBeNull()
-        ->and($event->hasMedia('route_gpx'))->toBeFalse();
+    expect($event->hasMedia('route_gpx'))->toBeFalse();
 });
 
 it('forbids an editor from deleting another editor\'s route', function () use ($minimalGpx, $minimalGeojson) {

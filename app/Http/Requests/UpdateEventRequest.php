@@ -49,6 +49,10 @@ class UpdateEventRequest extends FormRequest
             'max_cost' => ['nullable', 'numeric', 'min:0', 'gte:min_cost'],
             'ride_distance_km' => ['nullable', 'numeric', 'min:0'],
             'elevation_gain_m' => ['nullable', 'integer', 'min:0'],
+            'location_name' => ['nullable', 'string', 'max:255'],
+            'location_address' => ['nullable', 'string', 'max:500'],
+            'location_lat' => ['nullable', 'numeric', 'between:-90,90', 'required_with:location_lng'],
+            'location_lng' => ['nullable', 'numeric', 'between:-180,180', 'required_with:location_lat'],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
         ];

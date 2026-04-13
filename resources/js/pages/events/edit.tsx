@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +9,8 @@ import { GpxUpload } from '@/components/ui/gpx-upload';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { LocationResult } from '@/components/ui/location-search';
+import { LocationSearch } from '@/components/ui/location-search';
 import {
     Select,
     SelectContent,
@@ -32,7 +35,10 @@ interface EditableEvent {
     end_datetime: string;
     category_id: number | null;
     sponsor_id: number | null;
-    location_id: number | null;
+    location_name: string | null;
+    location_address: string | null;
+    location_lat: number | null;
+    location_lng: number | null;
     pace: string | null;
     route_url: string | null;
     url: string | null;
@@ -54,7 +60,6 @@ interface EventEditProps {
     event: EditableEvent;
     categories: SimpleOption[];
     sponsors: SimpleOption[];
-    locations: SimpleOption[];
     tags: SimpleOption[];
 }
 
@@ -65,7 +70,10 @@ type FormData = {
     end_datetime: string;
     category_id: string;
     sponsor_id: string;
-    location_id: string;
+    location_name: string;
+    location_address: string;
+    location_lat: string;
+    location_lng: string;
     pace: string;
     route_url: string;
     url: string;
@@ -80,7 +88,7 @@ type FormData = {
     tag_ids: number[];
 };
 
-export default function EventEdit({ event, categories, sponsors, locations, tags }: EventEditProps) {
+export default function EventEdit({ event, categories, sponsors, tags }: EventEditProps) {
     const fromParam = new URLSearchParams(window.location.search).get('from');
     // fromParam points to either an events list URL (/events?page=N) or a show URL (/events/{id})
     const isFromList = fromParam ? !/^\/events\/\d+/.test(fromParam) : false;
@@ -93,6 +101,29 @@ export default function EventEdit({ event, categories, sponsors, locations, tags
         { title: 'Edit', href: `/events/${event.id}/edit` },
     ];
 
+    const initialLocation: LocationResult | null =
+        event.location_name && event.location_lat !== null && event.location_lng !== null
+            ? {
+                  name: event.location_name,
+                  address: event.location_address ?? event.location_name,
+                  lat: event.location_lat,
+                  lng: event.location_lng,
+              }
+            : null;
+
+    const [locationValue, setLocationValue] = useState<LocationResult | null>(initialLocation);
+
+    const handleLocationChange = (result: LocationResult | null) => {
+        setLocationValue(result);
+        setData((prev) => ({
+            ...prev,
+            location_name: result?.name ?? '',
+            location_address: result?.address ?? '',
+            location_lat: result?.lat?.toString() ?? '',
+            location_lng: result?.lng?.toString() ?? '',
+        }));
+    };
+
     const { data, setData, patch, processing, errors } = useForm<FormData>({
         title: event.title,
         description: event.description ?? '',
@@ -100,7 +131,10 @@ export default function EventEdit({ event, categories, sponsors, locations, tags
         end_datetime: event.end_datetime,
         category_id: event.category_id?.toString() ?? '',
         sponsor_id: event.sponsor_id?.toString() ?? '',
-        location_id: event.location_id?.toString() ?? '',
+        location_name: event.location_name ?? '',
+        location_address: event.location_address ?? '',
+        location_lat: event.location_lat?.toString() ?? '',
+        location_lng: event.location_lng?.toString() ?? '',
         pace: event.pace ?? '',
         route_url: event.route_url ?? '',
         url: event.url ?? '',
@@ -270,25 +304,16 @@ export default function EventEdit({ event, categories, sponsors, locations, tags
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="location_id">Location</Label>
-                                <Select
-                                    value={data.location_id}
-                                    onValueChange={(v) => setData('location_id', v === 'none' ? '' : v)}
-                                >
-                                    <SelectTrigger id="location_id">
-                                        <SelectValue placeholder="No location" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="none">No location</SelectItem>
-                                        {locations.map((loc) => (
-                                            <SelectItem key={loc.id} value={loc.id.toString()}>
-                                                {loc.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.location_id && (
-                                    <p className="text-sm text-destructive">{errors.location_id}</p>
+                                <Label>Location</Label>
+                                <LocationSearch
+                                    value={locationValue}
+                                    onChange={handleLocationChange}
+                                    error={errors.location_lat ?? errors.location_lng}
+                                />
+                                {(errors.location_lat ?? errors.location_lng) && (
+                                    <p className="text-sm text-destructive">
+                                        {errors.location_lat ?? errors.location_lng}
+                                    </p>
                                 )}
                             </div>
                         </CardContent>

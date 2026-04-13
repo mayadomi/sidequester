@@ -20,9 +20,10 @@ class MapController extends Controller
             ? Carbon::parse($request->input('date'), self::DISPLAY_TZ)->startOfDay()
             : ($dateRange['start'] ?? Carbon::now(self::DISPLAY_TZ)->startOfDay());
 
-        $events = Event::with(['category', 'location', 'sponsor.media'])
+        $events = Event::with(['category', 'sponsor.media'])
+            ->withDerivedRouteGeojson()
             ->whereDate('start_datetime', $selectedDate)
-            ->whereHas('location')
+            ->whereNotNull('location_lat')
             ->orderBy('start_datetime')
             ->get();
 
@@ -43,13 +44,13 @@ class MapController extends Controller
         $markers = $events
             ->groupBy('location_id')
             ->map(function ($locationEvents) use ($favouriteEventIds) {
-                $location = $locationEvents->first()->location;
+                $first = $locationEvents->first();
 
                 return [
-                    'location_id' => $location->id,
-                    'location_name' => $location->name,
-                    'latitude' => (float) $location->latitude,
-                    'longitude' => (float) $location->longitude,
+                    'location_id' => $first->location_id,
+                    'location_name' => $first->location_name,
+                    'latitude' => (float) $first->location_lat,
+                    'longitude' => (float) $first->location_lng,
                     'events' => $locationEvents->map(fn ($event) => [
                         'id' => $event->id,
                         'title' => $event->title,
@@ -61,7 +62,7 @@ class MapController extends Controller
                         'ride_distance_km' => $event->ride_distance_km,
                         'elevation_gain_m' => $event->elevation_gain_m,
                         'is_featured' => $event->is_featured,
-                        'route_geojson' => $event->route_geojson,
+                        'route_geojson' => $event->route_feature_collection,
                         'sponsor_logo_url' => $event->sponsor?->getFirstMediaUrl('logo_square', 'display') ?: null,
                         'sponsor_logo_dark_url' => $event->sponsor?->getFirstMediaUrl('logo_square_dark', 'display') ?: null,
                         'is_favourited' => isset($favouriteEventIds[$event->id]),

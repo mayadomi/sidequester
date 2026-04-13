@@ -37,7 +37,10 @@ class StoreEventRequest extends FormRequest
                     }
                 },
             ],
-            'location_id' => ['nullable', 'integer', 'exists:locations,id'],
+            'location_name' => ['nullable', 'string', 'max:255'],
+            'location_address' => ['nullable', 'string', 'max:500'],
+            'location_lat' => ['nullable', 'numeric', 'between:-90,90', 'required_with:location_lng'],
+            'location_lng' => ['nullable', 'numeric', 'between:-180,180', 'required_with:location_lat'],
             'pace' => ['nullable', 'string', 'max:100'],
             'route_url' => ['nullable', 'url', 'max:500'],
             'url' => ['nullable', 'url', 'max:500'],

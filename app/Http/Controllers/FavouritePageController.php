@@ -17,10 +17,10 @@ class FavouritePageController extends Controller
             ->with([
                 'category',
                 'sponsor.media',
-                'location',
                 'tags',
                 'favouritedBy' => fn ($q) => $q->where('users.id', $user->id),
             ])
+            ->withDerivedRouteGeojson()
             ->withCount('favouritedBy')
             ->orderBy('start_datetime')
             ->get();
@@ -29,16 +29,16 @@ class FavouritePageController extends Controller
 
         // Build map markers grouped by location (only events that have a location)
         $markers = $events
-            ->filter(fn ($event) => $event->location !== null)
+            ->filter(fn ($event) => $event->location_lat !== null)
             ->groupBy('location_id')
             ->map(function ($locationEvents) {
-                $location = $locationEvents->first()->location;
+                $first = $locationEvents->first();
 
                 return [
-                    'location_id' => $location->id,
-                    'location_name' => $location->name,
-                    'latitude' => (float) $location->latitude,
-                    'longitude' => (float) $location->longitude,
+                    'location_id' => $first->location_id,
+                    'location_name' => $first->location_name,
+                    'latitude' => (float) $first->location_lat,
+                    'longitude' => (float) $first->location_lng,
                     'events' => $locationEvents->map(fn ($event) => [
                         'id' => $event->id,
                         'title' => $event->title,
@@ -53,7 +53,7 @@ class FavouritePageController extends Controller
                         'sponsor_logo_url' => $event->sponsor?->getFirstMediaUrl('logo_square', 'display') ?: null,
                         'sponsor_logo_dark_url' => $event->sponsor?->getFirstMediaUrl('logo_square_dark', 'display') ?: null,
                         'is_favourited' => true,
-                        'route_geojson' => $event->route_geojson,
+                        'route_geojson' => $event->route_feature_collection,
                     ])->values()->toArray(),
                 ];
             })
