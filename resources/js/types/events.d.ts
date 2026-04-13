@@ -18,15 +18,6 @@ export interface Sponsor {
     logo_rect_dark_url?: string;
 }
 
-export interface Location {
-    id: number;
-    name: string;
-    latitude: number;
-    longitude: number;
-    address: string | null;
-    events_count?: number;
-}
-
 export interface Tag {
     id: number;
     name: string;
@@ -69,10 +60,15 @@ export interface Event {
     favourites_count?: number;
     is_favourited?: boolean;
 
+    // Denormalized location fields
+    location_name: string | null;
+    location_address: string | null;
+    location_lat: number | null;
+    location_lng: number | null;
+
     // Relationships
     category?: Category;
     sponsor?: Sponsor;
-    location?: Location;
     tags?: Tag[];
 
     // Timestamps
@@ -108,7 +104,6 @@ export interface EventFilters {
     end_date?: string;
     category?: string;
     sponsor?: string;
-    location?: number;
     min_distance?: number;
     max_distance?: number;
     min_elevation?: number;

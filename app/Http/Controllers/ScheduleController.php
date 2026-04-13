@@ -47,7 +47,7 @@ class ScheduleController extends Controller
             : ($dateRange['start'] ?? Carbon::now(self::DISPLAY_TZ)->startOfDay());
 
         // Get events for the selected date, scoped to the TDU year
-        $events = Event::with(['category', 'sponsor', 'location'])
+        $events = Event::with(['category', 'sponsor'])
             ->forTduYear($tduYear)
             ->whereDate('start_datetime', $selectedDate)
             ->orderBy('start_datetime')
@@ -88,7 +88,7 @@ class ScheduleController extends Controller
                         'end_hour' => $end->hour + ($end->minute / 60),
                         'duration_hours' => $start->diffInMinutes($end) / 60,
                         'category_slug' => $event->category?->slug ?? 'other',
-                        'location' => $event->location?->name,
+                        'location_name' => $event->location_name,
                         'ride_distance_km' => $event->ride_distance_km,
                         'elevation_gain_m' => $event->elevation_gain_m,
                         'is_featured' => $event->is_featured,

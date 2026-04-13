@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, Clock, ExternalLink, Layers, MapPin, Mountain, Route, X } from 'lucide-react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -9,7 +9,7 @@ import { FavouriteButton } from '@/components/events/favourite-button';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, SharedData } from '@/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,7 +31,6 @@ interface MapEvent {
 }
 
 interface MapMarker {
-    location_id: number;
     location_name: string;
     latitude: number;
     longitude: number;
@@ -121,6 +120,7 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Map', href: '/map' }];
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function MapIndex({ markers, selectedDate, availableDates }: MapIndexProps) {
+    const { name } = usePage<SharedData>().props;
     const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
     const [selectedMarker, setSelectedMarker] = useState<MapMarker | null>(null);
     const [selectedEvents, setSelectedEvents] = useState<MapEvent[]>([]);
@@ -301,7 +301,7 @@ export default function MapIndex({ markers, selectedDate, availableDates }: MapI
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Map | TDU Planner" />
+            <Head title={`Map | ${name}`} />
 
             <div className="flex min-h-0 flex-1 flex-col">
                 {/* Header — matches schedule page style */}
@@ -430,7 +430,7 @@ export default function MapIndex({ markers, selectedDate, availableDates }: MapI
 
                             {markers.map((marker) => (
                                 <Marker
-                                    key={marker.location_id}
+                                    key={marker.location_name}
                                     longitude={marker.longitude}
                                     latitude={marker.latitude}
                                     anchor="bottom"
@@ -439,7 +439,7 @@ export default function MapIndex({ markers, selectedDate, availableDates }: MapI
                                         setSelectedEvents([]);
                                         setPopupLngLat(null);
                                         setSelectedMarker(
-                                            selectedMarker?.location_id === marker.location_id
+                                            selectedMarker?.location_name === marker.location_name
                                                 ? null
                                                 : marker,
                                         );
@@ -447,7 +447,7 @@ export default function MapIndex({ markers, selectedDate, availableDates }: MapI
                                 >
                                     <MarkerPin
                                         marker={marker}
-                                        isSelected={selectedMarker?.location_id === marker.location_id}
+                                        isSelected={selectedMarker?.location_name === marker.location_name}
                                         isHovered={hoveredEventId !== null && marker.events.some((e) => e.id === hoveredEventId)}
                                     />
                                 </Marker>

@@ -1,9 +1,6 @@
 <?php
 
-use App\Models\Category;
 use App\Models\Event;
-use App\Models\Location;
-use App\Models\Sponsor;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,7 +12,7 @@ uses(Tests\TestCase::class, RefreshDatabase::class);
 test('scopeHappeningNow returns only in-progress events', function () {
     $inProgress = Event::factory()->happeningNow()->create();
     $notStarted = Event::factory()->create(['start_datetime' => now()->addHour(), 'end_datetime' => now()->addHours(3)]);
-    $ended      = Event::factory()->past()->create();
+    $ended = Event::factory()->past()->create();
 
     $results = Event::happeningNow()->pluck('id');
 
@@ -25,8 +22,8 @@ test('scopeHappeningNow returns only in-progress events', function () {
 });
 
 test('scopeOnDate filters by start date', function () {
-    $target  = Event::factory()->startingAt('2026-05-10 09:00:00')->create();
-    $other   = Event::factory()->startingAt('2026-05-11 09:00:00')->create();
+    $target = Event::factory()->startingAt('2026-05-10 09:00:00')->create();
+    $other = Event::factory()->startingAt('2026-05-11 09:00:00')->create();
 
     $results = Event::onDate('2026-05-10')->pluck('id');
 
@@ -37,7 +34,7 @@ test('scopeOnDate filters by start date', function () {
 test('scopeUpcoming excludes past events and orders by start_datetime', function () {
     $future1 = Event::factory()->startingAt(now()->addDays(2)->toDateTimeString())->create();
     $future2 = Event::factory()->startingAt(now()->addDays(1)->toDateTimeString())->create();
-    $past    = Event::factory()->past()->create();
+    $past = Event::factory()->past()->create();
 
     $results = Event::upcoming()->pluck('id');
 
@@ -50,7 +47,7 @@ test('scopeUpcoming excludes past events and orders by start_datetime', function
 });
 
 test('scopeBetweenDates filters to start_date only when end_date is omitted', function () {
-    $match  = Event::factory()->startingAt('2026-06-15 10:00:00')->create();
+    $match = Event::factory()->startingAt('2026-06-15 10:00:00')->create();
     $before = Event::factory()->startingAt('2026-06-14 10:00:00')->create();
 
     $results = Event::betweenDates('2026-06-15')->pluck('id');
@@ -60,10 +57,10 @@ test('scopeBetweenDates filters to start_date only when end_date is omitted', fu
 });
 
 test('scopeBetweenDates filters inclusive date range', function () {
-    $start  = Event::factory()->startingAt('2026-06-01 09:00:00')->create();
+    $start = Event::factory()->startingAt('2026-06-01 09:00:00')->create();
     $middle = Event::factory()->startingAt('2026-06-05 09:00:00')->create();
-    $end    = Event::factory()->startingAt('2026-06-10 09:00:00')->create();
-    $after  = Event::factory()->startingAt('2026-06-11 09:00:00')->create();
+    $end = Event::factory()->startingAt('2026-06-10 09:00:00')->create();
+    $after = Event::factory()->startingAt('2026-06-11 09:00:00')->create();
     $before = Event::factory()->startingAt('2026-05-31 09:00:00')->create();
 
     $results = Event::betweenDates('2026-06-01', '2026-06-10')->pluck('id');
@@ -79,7 +76,7 @@ test('scopeBetweenDates filters inclusive date range', function () {
 // ── Boolean flag scopes ───────────────────────────────────────────────────────
 
 test('scopeFeatured returns only featured events', function () {
-    $featured    = Event::factory()->featured()->create();
+    $featured = Event::factory()->featured()->create();
     $notFeatured = Event::factory()->create();
 
     $results = Event::featured()->pluck('id');
@@ -89,7 +86,7 @@ test('scopeFeatured returns only featured events', function () {
 });
 
 test('scopeRecurring returns only recurring events', function () {
-    $recurring    = Event::factory()->recurring()->create();
+    $recurring = Event::factory()->recurring()->create();
     $notRecurring = Event::factory()->create();
 
     $results = Event::recurring()->pluck('id');
@@ -99,7 +96,7 @@ test('scopeRecurring returns only recurring events', function () {
 });
 
 test('scopeWomens returns only women\'s events', function () {
-    $womens    = Event::factory()->womens()->create();
+    $womens = Event::factory()->womens()->create();
     $notWomens = Event::factory()->create();
 
     $results = Event::womens()->pluck('id');
@@ -111,7 +108,7 @@ test('scopeWomens returns only women\'s events', function () {
 // ── Ride / distance scopes ────────────────────────────────────────────────────
 
 test('scopeRides returns only events with a distance set', function () {
-    $ride    = Event::factory()->ride(50.0)->create();
+    $ride = Event::factory()->ride(50.0)->create();
     $nonRide = Event::factory()->create(['ride_distance_km' => null]);
 
     $results = Event::rides()->pluck('id');
@@ -122,7 +119,7 @@ test('scopeRides returns only events with a distance set', function () {
 
 test('scopeMinDistance filters by minimum km', function () {
     $short = Event::factory()->ride(20.0)->create();
-    $long  = Event::factory()->ride(100.0)->create();
+    $long = Event::factory()->ride(100.0)->create();
 
     $results = Event::minDistance(50.0)->pluck('id');
 
@@ -132,7 +129,7 @@ test('scopeMinDistance filters by minimum km', function () {
 
 test('scopeMaxDistance filters by maximum km', function () {
     $short = Event::factory()->ride(20.0)->create();
-    $long  = Event::factory()->ride(100.0)->create();
+    $long = Event::factory()->ride(100.0)->create();
 
     $results = Event::maxDistance(50.0)->pluck('id');
 
@@ -141,7 +138,7 @@ test('scopeMaxDistance filters by maximum km', function () {
 });
 
 test('scopeMinElevation filters by minimum elevation', function () {
-    $low  = Event::factory()->ride(50.0, 100)->create();
+    $low = Event::factory()->ride(50.0, 100)->create();
     $high = Event::factory()->ride(50.0, 1000)->create();
 
     $results = Event::minElevation(500)->pluck('id');
@@ -151,7 +148,7 @@ test('scopeMinElevation filters by minimum elevation', function () {
 });
 
 test('scopeMaxElevation filters by maximum elevation', function () {
-    $low  = Event::factory()->ride(50.0, 100)->create();
+    $low = Event::factory()->ride(50.0, 100)->create();
     $high = Event::factory()->ride(50.0, 1000)->create();
 
     $results = Event::maxElevation(500)->pluck('id');
@@ -183,9 +180,9 @@ test('scopePaid returns only paid events', function () {
 });
 
 test('scopeMinCost excludes events below threshold', function () {
-    $cheap     = Event::factory()->paid(10.0, 20.0)->create();
+    $cheap = Event::factory()->paid(10.0, 20.0)->create();
     $expensive = Event::factory()->paid(50.0, 100.0)->create();
-    $free      = Event::factory()->free()->create();
+    $free = Event::factory()->free()->create();
 
     $results = Event::minCost(30.0)->pluck('id');
 
@@ -213,7 +210,7 @@ test('scopeMaxCost includes free events regardless of threshold', function () {
 
 test('scopeMaxCost excludes paid events above threshold', function () {
     $affordable = Event::factory()->paid(10.0, 30.0)->create();
-    $expensive  = Event::factory()->paid(80.0, 120.0)->create();
+    $expensive = Event::factory()->paid(80.0, 120.0)->create();
 
     $results = Event::maxCost(50.0)->pluck('id');
 
@@ -230,26 +227,11 @@ test('scopeMaxCost includes paid events where min_cost is within threshold', fun
     expect($results)->toContain($event->id);
 });
 
-// ── Location scope ────────────────────────────────────────────────────────────
-
-test('scopeAtLocation filters by location', function () {
-    $locationA = Location::factory()->create();
-    $locationB = Location::factory()->create();
-
-    $eventA = Event::factory()->create(['location_id' => $locationA->id]);
-    $eventB = Event::factory()->create(['location_id' => $locationB->id]);
-
-    $results = Event::atLocation($locationA->id)->pluck('id');
-
-    expect($results)->toContain($eventA->id)
-        ->not->toContain($eventB->id);
-});
-
 // ── Tag scope ─────────────────────────────────────────────────────────────────
 
 test('scopeWithTags returns events that have the specified tag', function () {
-    $tag     = Tag::factory()->create(['slug' => 'cycling']);
-    $match   = Event::factory()->create();
+    $tag = Tag::factory()->create(['slug' => 'cycling']);
+    $match = Event::factory()->create();
     $noMatch = Event::factory()->create();
 
     $match->tags()->attach($tag);
@@ -279,7 +261,7 @@ test('scopeWithTags requires ALL specified tags (AND behaviour)', function () {
 // ── Popularity scope ──────────────────────────────────────────────────────────
 
 test('scopeMinFavourites filters by minimum favourites count', function () {
-    $popular   = Event::factory()->create();
+    $popular = Event::factory()->create();
     $unpopular = Event::factory()->create();
 
     $users = User::factory()->count(3)->create();
@@ -294,7 +276,7 @@ test('scopeMinFavourites filters by minimum favourites count', function () {
 });
 
 test('scopeOrderByPopularity returns most-favourited events first', function () {
-    $popular   = Event::factory()->create();
+    $popular = Event::factory()->create();
     $unpopular = Event::factory()->create();
 
     $users = User::factory()->count(5)->create();
@@ -310,7 +292,7 @@ test('scopeOrderByPopularity returns most-favourited events first', function () 
 // ── isRide / isHappeningNow helpers ──────────────────────────────────────────
 
 test('isRide returns true only when ride_distance_km is set', function () {
-    $ride    = Event::factory()->ride()->create();
+    $ride = Event::factory()->ride()->create();
     $nonRide = Event::factory()->create();
 
     expect($ride->isRide())->toBeTrue();
@@ -319,7 +301,7 @@ test('isRide returns true only when ride_distance_km is set', function () {
 
 test('isHappeningNow returns true for in-progress event', function () {
     $inProgress = Event::factory()->happeningNow()->create();
-    $future     = Event::factory()->create();
+    $future = Event::factory()->create();
 
     expect($inProgress->isHappeningNow())->toBeTrue();
     expect($future->isHappeningNow())->toBeFalse();

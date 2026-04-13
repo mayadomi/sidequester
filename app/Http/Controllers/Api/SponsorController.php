@@ -38,7 +38,7 @@ class SponsorController extends Controller
     public function events(Sponsor $sponsor): EventCollection
     {
         $events = $sponsor->events()
-            ->with(['category', 'location'])
+            ->with(['category'])
             ->orderBy('start_datetime')
             ->paginate(20);
 

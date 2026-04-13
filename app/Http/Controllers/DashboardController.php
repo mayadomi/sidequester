@@ -15,7 +15,7 @@ class DashboardController extends Controller
         $user = $request->user();
 
         $upcomingEvents = Event::upcoming()
-            ->with(['category', 'sponsor.media', 'location'])
+            ->with(['category', 'sponsor.media'])
             ->withCount('favouritedBy')
             ->with(['favouritedBy' => fn ($q) => $q->where('users.id', $user->id)])
             ->limit(6)

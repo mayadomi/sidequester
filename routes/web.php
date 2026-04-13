@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\EventSearchController;
 use App\Http\Controllers\Api\FavouriteController;
-use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\SponsorController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\DashboardController;
@@ -42,9 +41,6 @@ Route::prefix('api')->group(function () {
     Route::get('/sponsors', [SponsorController::class, 'index']);
     Route::get('/sponsors/{sponsor:slug}', [SponsorController::class, 'show']);
     Route::get('/sponsors/{sponsor:slug}/events', [SponsorController::class, 'events']);
-
-    Route::get('/locations', [LocationController::class, 'index']);
-    Route::get('/locations/{location}', [LocationController::class, 'show']);
 
     Route::get('/tags', [TagController::class, 'index']);
 

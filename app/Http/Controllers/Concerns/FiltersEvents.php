@@ -34,11 +34,6 @@ trait FiltersEvents
             $query->whereHas('sponsor', fn ($q) => $q->where('slug', $request->sponsor));
         }
 
-        // Location filter
-        if ($request->has('location')) {
-            $query->atLocation((int) $request->location);
-        }
-
         // Ride distance filters
         if ($request->has('min_distance')) {
             $query->minDistance((float) $request->min_distance);
@@ -105,15 +100,15 @@ trait FiltersEvents
                 break;
             case 'cost':
                 $query->orderBy('is_free', 'desc')
-                      ->orderByRaw('COALESCE(min_cost, max_cost) ' . $direction);
+                    ->orderByRaw('COALESCE(min_cost, max_cost) '.$direction);
                 break;
             case 'distance':
                 $query->orderByRaw('ride_distance_km IS NULL')
-                      ->orderBy('ride_distance_km', $direction);
+                    ->orderBy('ride_distance_km', $direction);
                 break;
             case 'elevation':
                 $query->orderByRaw('elevation_gain_m IS NULL')
-                      ->orderBy('elevation_gain_m', $direction);
+                    ->orderBy('elevation_gain_m', $direction);
                 break;
             case 'date':
             default:

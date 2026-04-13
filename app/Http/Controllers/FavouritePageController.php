@@ -30,12 +30,11 @@ class FavouritePageController extends Controller
         // Build map markers grouped by location (only events that have a location)
         $markers = $events
             ->filter(fn ($event) => $event->location_lat !== null)
-            ->groupBy('location_id')
+            ->groupBy('location_name')
             ->map(function ($locationEvents) {
                 $first = $locationEvents->first();
 
                 return [
-                    'location_id' => $first->location_id,
                     'location_name' => $first->location_name,
                     'latitude' => (float) $first->location_lat,
                     'longitude' => (float) $first->location_lng,

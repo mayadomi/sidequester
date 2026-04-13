@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Clock, ExternalLink, Heart, List, Map as MapIcon, MapPin, Mountain, Route, X } from 'lucide-react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { MapLayerMouseEvent } from 'maplibre-gl';
@@ -10,7 +10,7 @@ import { FavouriteButton } from '@/components/events/favourite-button';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, SharedData } from '@/types';
 import type { Event } from '@/types/events';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -33,7 +33,6 @@ interface FavMapEvent {
 }
 
 interface FavMarker {
-    location_id: number;
     location_name: string;
     latitude: number;
     longitude: number;
@@ -100,11 +99,12 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'My Favourites', href: '/favouri
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function FavouritesIndex({ events, markers }: FavouritesIndexProps) {
+    const { name } = usePage<SharedData>().props;
     const [view, setView] = useState<'list' | 'map'>('list');
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="My Favourites | TDU Planner" />
+            <Head title={`My Favourites | ${name}`} />
 
             <div className="flex min-h-0 flex-1 flex-col">
                 {/* Header */}
@@ -202,7 +202,7 @@ function MapView({ markers }: { markers: FavMarker[] }) {
     const [selectedMarker, setSelectedMarker] = useState<FavMarker | null>(null);
     const [routeEvents, setRouteEvents] = useState<FavMapEvent[]>([]);
     const [routePopupLngLat, setRoutePopupLngLat] = useState<{ longitude: number; latitude: number } | null>(null);
-    const [hoveredMarkerId, setHoveredMarkerId] = useState<number | null>(null);
+    const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
     const [cursor, setCursor] = useState<string>('auto');
 
     useEffect(() => {
@@ -284,7 +284,7 @@ function MapView({ markers }: { markers: FavMarker[] }) {
     const handleMarkerClick = (marker: FavMarker) => {
         setRouteEvents([]);
         setRoutePopupLngLat(null);
-        setSelectedMarker((prev) => (prev?.location_id === marker.location_id ? null : marker));
+        setSelectedMarker((prev) => (prev?.location_name === marker.location_name ? null : marker));
     };
 
     const markerSubtitle = useMemo(() => {
@@ -342,7 +342,7 @@ function MapView({ markers }: { markers: FavMarker[] }) {
 
                 {markers.map((marker) => (
                     <Marker
-                        key={marker.location_id}
+                        key={marker.location_name}
                         longitude={marker.longitude}
                         latitude={marker.latitude}
                         anchor="bottom"
@@ -353,9 +353,9 @@ function MapView({ markers }: { markers: FavMarker[] }) {
                     >
                         <MarkerPin
                             marker={marker}
-                            isSelected={selectedMarker?.location_id === marker.location_id}
-                            isHovered={hoveredMarkerId === marker.location_id}
-                            onMouseEnter={() => setHoveredMarkerId(marker.location_id)}
+                            isSelected={selectedMarker?.location_name === marker.location_name}
+                            isHovered={hoveredMarkerId === marker.location_name}
+                            onMouseEnter={() => setHoveredMarkerId(marker.location_name)}
                             onMouseLeave={() => setHoveredMarkerId(null)}
                         />
                     </Marker>

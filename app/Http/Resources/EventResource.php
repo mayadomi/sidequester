@@ -31,7 +31,7 @@ class EventResource extends JsonResource
             'is_womens' => $this->is_womens,
             'is_happening_now' => $this->isHappeningNow(),
             'url' => $this->url,
-            'banner_image_url'       => $this->getFirstMediaUrl('banner', 'card'),
+            'banner_image_url' => $this->getFirstMediaUrl('banner', 'card'),
             'banner_image_thumb_url' => $this->getFirstMediaUrl('banner', 'thumb'),
 
             // Cost fields
@@ -60,10 +60,12 @@ class EventResource extends JsonResource
                 $this->relationLoaded('sponsor'),
                 fn () => (new SponsorResource($this->sponsor))->resolve()
             ),
-            'location' => $this->when(
-                $this->relationLoaded('location'),
-                fn () => (new LocationResource($this->location))->resolve()
-            ),
+            // Denormalized location fields (always present when set)
+            'location_name' => $this->location_name,
+            'location_address' => $this->location_address,
+            'location_lat' => $this->location_lat,
+            'location_lng' => $this->location_lng,
+
             'tags' => $this->when(
                 $this->relationLoaded('tags'),
                 fn () => $this->tags->map(fn ($tag) => [
@@ -102,17 +104,18 @@ class EventResource extends JsonResource
                 return 'Pricing TBA';
             }
             if ((float) $min === (float) $max) {
-                return '$' . number_format($min, 2);
+                return '$'.number_format($min, 2);
             }
-            return '$' . number_format($min, 2) . ' - $' . number_format($max, 2);
+
+            return '$'.number_format($min, 2).' - $'.number_format($max, 2);
         }
 
         if ($min !== null) {
-            return 'From $' . number_format($min, 2);
+            return 'From $'.number_format($min, 2);
         }
 
         if ($max !== null) {
-            return 'Up to $' . number_format($max, 2);
+            return 'Up to $'.number_format($max, 2);
         }
 
         return 'Pricing TBA';

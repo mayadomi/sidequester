@@ -28,6 +28,7 @@ interface EventShowProps {
 
 export default function EventShow({ event, can_edit }: EventShowProps) {
     const page = usePage<SharedData>();
+    const { name } = page.props;
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Events', href: '/events' },
@@ -48,7 +49,7 @@ export default function EventShow({ event, can_edit }: EventShowProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`${event.title} | TDU Planner`} />
+            <Head title={`${event.title} | ${name}`} />
 
             <div className="mx-auto max-w-4xl p-4 lg:p-6">
                 {/* Back Button */}

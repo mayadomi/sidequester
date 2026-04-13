@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Category;
-use App\Models\Location;
 use App\Models\Sponsor;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -12,27 +11,30 @@ class EventFactory extends Factory
     public function definition(): array
     {
         $start = $this->faker->dateTimeBetween('+1 day', '+30 days');
-        $end   = (clone $start)->modify('+2 hours');
+        $end = (clone $start)->modify('+2 hours');
 
         return [
-            'title'            => $this->faker->sentence(4),
-            'description'      => $this->faker->paragraph(),
-            'start_datetime'   => $start,
-            'end_datetime'     => $end,
-            'category_id'      => Category::factory(),
-            'sponsor_id'       => Sponsor::factory(),
-            'location_id'      => Location::factory(),
+            'title' => $this->faker->sentence(4),
+            'description' => $this->faker->paragraph(),
+            'start_datetime' => $start,
+            'end_datetime' => $end,
+            'category_id' => Category::factory(),
+            'sponsor_id' => Sponsor::factory(),
+            'location_name' => $this->faker->city(),
+            'location_address' => $this->faker->streetAddress().', SA',
+            'location_lat' => $this->faker->latitude(-35.5, -34.5),
+            'location_lng' => $this->faker->longitude(138.3, 139.2),
             'ride_distance_km' => null,
             'elevation_gain_m' => null,
-            'is_featured'      => false,
-            'is_recurring'     => false,
-            'is_womens'        => false,
-            'is_free'          => true,
-            'min_cost'         => null,
-            'max_cost'         => null,
-            'url'              => null,
-            'pace'             => null,
-            'route_url'        => null,
+            'is_featured' => false,
+            'is_recurring' => false,
+            'is_womens' => false,
+            'is_free' => true,
+            'min_cost' => null,
+            'max_cost' => null,
+            'url' => null,
+            'pace' => null,
+            'route_url' => null,
         ];
     }
 
@@ -64,10 +66,10 @@ class EventFactory extends Factory
         return $this->state(['is_free' => true, 'min_cost' => null, 'max_cost' => null]);
     }
 
-    public function paid(float $minCost, float $maxCost = null): static
+    public function paid(float $minCost, ?float $maxCost = null): static
     {
         return $this->state([
-            'is_free'  => false,
+            'is_free' => false,
             'min_cost' => $minCost,
             'max_cost' => $maxCost,
         ]);
@@ -77,7 +79,7 @@ class EventFactory extends Factory
     {
         return $this->state(fn () => [
             'start_datetime' => $datetime,
-            'end_datetime'   => date('Y-m-d H:i:s', strtotime($datetime) + 7200),
+            'end_datetime' => date('Y-m-d H:i:s', strtotime($datetime) + 7200),
         ]);
     }
 
@@ -85,7 +87,7 @@ class EventFactory extends Factory
     {
         return $this->state([
             'start_datetime' => now()->subHour(),
-            'end_datetime'   => now()->addHour(),
+            'end_datetime' => now()->addHour(),
         ]);
     }
 
@@ -93,7 +95,17 @@ class EventFactory extends Factory
     {
         return $this->state([
             'start_datetime' => now()->subDays(7),
-            'end_datetime'   => now()->subDays(7)->addHours(2),
+            'end_datetime' => now()->subDays(7)->addHours(2),
+        ]);
+    }
+
+    public function withLocation(string $name, float $lat, float $lng, ?string $address = null): static
+    {
+        return $this->state([
+            'location_name' => $name,
+            'location_lat' => $lat,
+            'location_lng' => $lng,
+            'location_address' => $address,
         ]);
     }
 }

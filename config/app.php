@@ -15,6 +15,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'festival_name' => env('FESTIVAL_NAME', env('APP_NAME', 'Laravel')),
+
+    'contact_email' => env('APP_CONTACT_EMAIL', 'hello@sidequester.au'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

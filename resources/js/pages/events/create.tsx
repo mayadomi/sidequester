@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { gpx as gpxToGeoJson } from '@tmcw/togeojson';
 import { ArrowLeft, FileX2, Loader2, RouteIcon, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, SharedData } from '@/types';
 
 interface SimpleOption {
     id: number;
@@ -65,6 +65,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function EventCreate({ categories, sponsors, tags }: EventCreateProps) {
+    const { name } = usePage<SharedData>().props;
     const { data, setData, post, processing, errors } = useForm<FormData>({
         title: '',
         description: '',
@@ -155,7 +156,7 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Event | TDU Planner" />
+            <Head title={`Create Event | ${name}`} />
 
             <div className="mx-auto max-w-3xl p-4 lg:p-6">
                 <Button variant="ghost" size="sm" className="mb-4" asChild>

@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { CheckCheck, Clock, Search, ShieldAlert, ShieldCheck, User } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -14,7 +14,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, SharedData } from '@/types';
 
 type Role = 'viewer' | 'editor_pending' | 'editor' | 'admin';
 
@@ -64,6 +64,7 @@ const roleBadge = (role: Role) => {
 };
 
 export default function AdminUsers({ users, pendingCount, search: initialSearch }: AdminUsersProps) {
+    const { name } = usePage<SharedData>().props;
     const [search, setSearch] = useState(initialSearch);
     const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -86,7 +87,7 @@ export default function AdminUsers({ users, pendingCount, search: initialSearch 
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="User Management | TDU Planner" />
+            <Head title={`User Management | ${name}`} />
 
             <div className="mx-auto max-w-4xl p-4 lg:p-6">
                 <div className="mb-6">

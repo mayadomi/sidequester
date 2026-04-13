@@ -1,4 +1,4 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, usePage } from '@inertiajs/react';
 import { Bike, Calendar } from 'lucide-react';
 
 import InputError from '@/components/input-error';
@@ -10,18 +10,20 @@ import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
+import type { SharedData } from '@/types';
 
 interface RegisterProps {
     intent: 'creator' | null;
 }
 
 export default function Register({ intent }: RegisterProps) {
+    const { festivalName } = usePage<SharedData>().props;
     const isCreator = intent === 'creator';
 
     const title = isCreator ? 'List your event' : 'Create an account';
     const description = isCreator
-        ? 'Sign up to list and manage your TDU events and sponsorships'
-        : 'Sign up to browse, save, and plan your TDU experience';
+        ? `Sign up to list and manage your ${festivalName} events and sponsorships`
+        : `Sign up to browse, save, and plan your ${festivalName} experience`;
 
     return (
         <AuthLayout title={title} description={description}>
@@ -39,7 +41,7 @@ export default function Register({ intent }: RegisterProps) {
                 <div className="mb-2 flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-800 dark:bg-blue-950/30">
                     <Calendar className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
                     <p className="text-sm text-blue-700 dark:text-blue-300">
-                        <strong>Free account:</strong> Browse all events, save your favourites, and plan your TDU schedule.
+                        <strong>Free account:</strong> Browse all events, save your favourites, and plan your {festivalName} schedule.
                     </p>
                 </div>
             )}

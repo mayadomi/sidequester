@@ -18,11 +18,10 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import type { Category, EventFilters as Filters, Location, Tag } from '@/types/events';
+import type { Category, EventFilters as Filters, Tag } from '@/types/events';
 
 interface EventFiltersProps {
     categories: Category[];
-    locations: Location[];
     tags: Tag[];
     currentFilters: Filters;
     tduYear?: number;
@@ -34,7 +33,6 @@ interface EventFiltersProps {
 
 export function EventFilters({
     categories,
-    locations,
     tags,
     currentFilters,
     tduYear,
@@ -204,27 +202,6 @@ export function EventFilters({
                                         ({cat.events_count})
                                     </span>
                                 )}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-
-            {/* Location */}
-            <div className="space-y-2">
-                <Label htmlFor="location" className="text-sm font-medium">Location</Label>
-                <Select
-                    value={filters.location?.toString() ?? '__all__'}
-                    onValueChange={(value) => updateAndApply('location', value === '__all__' ? undefined : parseInt(value))}
-                >
-                    <SelectTrigger id="location" className="w-full">
-                        <SelectValue placeholder="All locations" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="__all__">All locations</SelectItem>
-                        {locations.map((loc) => (
-                            <SelectItem key={loc.id} value={loc.id.toString()}>
-                                {loc.name}
                             </SelectItem>
                         ))}
                     </SelectContent>

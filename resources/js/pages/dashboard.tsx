@@ -23,7 +23,7 @@ function greeting(): string {
 }
 
 export default function Dashboard({ upcomingEvents, favouritesCount }: DashboardProps) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, name, festivalName } = usePage<SharedData>().props;
     const role = auth?.user?.role;
     const firstName = auth?.user?.name?.split(' ')[0] ?? '';
     const isEditor = role === 'editor' || role === 'admin';
@@ -37,7 +37,7 @@ export default function Dashboard({ upcomingEvents, favouritesCount }: Dashboard
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard | TDU Planner" />
+            <Head title={`Dashboard | ${name}`} />
 
             <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-6">
                 {/* Header */}
@@ -47,7 +47,7 @@ export default function Dashboard({ upcomingEvents, favouritesCount }: Dashboard
                             {greeting()}{firstName ? `, ${firstName}` : ''}
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Here's what's coming up at TDU.
+                            Here's what's coming up at {festivalName}.
                         </p>
                     </div>
                     {isEditor && (

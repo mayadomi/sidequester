@@ -14,7 +14,7 @@ class ProfileEventController extends Controller
     {
         $user = $request->user();
 
-        $events = Event::with(['category', 'sponsor', 'location'])
+        $events = Event::with(['category', 'sponsor'])
             ->where('created_by_user_id', $user->id)
             ->withCount('favouritedBy')
             ->orderByDesc('start_datetime')

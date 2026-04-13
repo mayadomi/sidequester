@@ -1,10 +1,10 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Building2 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ImageUpload } from '@/components/ui/image-upload';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, SharedData } from '@/types';
 
 interface SponsorItem {
     id: number;
@@ -27,9 +27,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function SponsorsIndex({ sponsors, isAdmin }: SponsorsIndexProps) {
+    const { name } = usePage<SharedData>().props;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Event Hosts | TDU Planner" />
+            <Head title={`Event Hosts | ${name}`} />
 
             <div className="mx-auto max-w-4xl p-4 lg:p-6">
                 <div className="mb-6">

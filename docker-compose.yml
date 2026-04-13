@@ -1,8 +1,7 @@
 services:
   db:
-    # postgis/postgis does not publish ARM64 images; runs under AMD64 emulation on Apple/Windows ARM.
-    # This is fine for local dev. On AMD64 servers (production) there is no emulation overhead.
-    image: postgis/postgis:16-3.4
+    # Multi-arch image (amd64 + arm64). Works on both Apple Silicon / Windows ARM dev machines and amd64 production servers.
+    image: ghcr.io/baosystems/postgis:16-3.4
     container_name: tdu-postgres
     environment:
       POSTGRES_DB: ${DB_DATABASE}

@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Calendar, Clock, Pencil, Plus } from 'lucide-react';
 
 import Heading from '@/components/heading';
@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, SharedData } from '@/types';
 import type { Event } from '@/types/events';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -18,9 +18,11 @@ interface MyEventsProps {
 }
 
 export default function MyEventsIndex({ events }: MyEventsProps) {
+    const { name } = usePage<SharedData>().props;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="My Events | TDU Planner" />
+            <Head title={`My Events | ${name}`} />
 
             <div className="mx-auto max-w-4xl p-4 lg:p-6">
                 <div className="mb-6 flex items-center justify-between">

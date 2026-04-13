@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
@@ -7,7 +7,7 @@ import { TimelineGrid } from '@/components/schedule/timeline-grid';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, SharedData } from '@/types';
 import type { ScheduleCategory, TimelineBounds } from '@/types/schedule';
 
 interface ScheduleIndexProps {
@@ -47,6 +47,7 @@ export default function ScheduleIndex({
     tduYear,
     availableYears,
 }: ScheduleIndexProps) {
+    const { name, festivalName } = usePage<SharedData>().props;
     const currentDateIndex = availableDates.indexOf(selectedDate);
     const hasPrevDate = currentDateIndex > 0;
     const hasNextDate = currentDateIndex < availableDates.length - 1;
@@ -96,7 +97,7 @@ export default function ScheduleIndex({
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Schedule | TDU Planner" />
+            <Head title={`Schedule | ${name}`} />
 
             <div className="flex min-h-0 flex-1 flex-col">
                 {/* Header */}
@@ -115,7 +116,7 @@ export default function ScheduleIndex({
                                             : 'text-white/70 hover:bg-white/10 hover:text-white'
                                     }`}
                                 >
-                                    TDU {year}
+                                    {festivalName} {year}
                                 </button>
                             ))}
                         </div>

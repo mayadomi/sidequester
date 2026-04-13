@@ -31,7 +31,6 @@ class Event extends Model implements HasMedia
         'pace',
         'route_url',
         'sponsor_id',
-        'location_id',
         'ride_distance_km',
         'elevation_gain_m',
         'is_featured',
@@ -89,14 +88,6 @@ class Event extends Model implements HasMedia
     public function sponsor(): BelongsTo
     {
         return $this->belongsTo(Sponsor::class);
-    }
-
-    /**
-     * Get the location for this event.
-     */
-    public function location(): BelongsTo
-    {
-        return $this->belongsTo(Location::class);
     }
 
     /**
@@ -208,14 +199,6 @@ class Event extends Model implements HasMedia
     public function isRide(): bool
     {
         return $this->ride_distance_km !== null;
-    }
-
-    /**
-     * Scope: Filter by location.
-     */
-    public function scopeAtLocation(Builder $query, int $locationId): Builder
-    {
-        return $query->where('location_id', $locationId);
     }
 
     /**

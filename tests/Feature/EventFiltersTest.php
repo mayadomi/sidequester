@@ -2,10 +2,8 @@
 
 use App\Models\Category;
 use App\Models\Event;
-use App\Models\Location;
 use App\Models\Sponsor;
 use App\Models\Tag;
-use App\Models\User;
 
 // ── Basic access ──────────────────────────────────────────────────────────────
 
@@ -31,8 +29,8 @@ test('category filter returns only events in that category', function () {
     $categoryA = Category::factory()->create(['slug' => 'race-stages']);
     $categoryB = Category::factory()->create(['slug' => 'expo']);
 
-    $inA  = Event::factory()->create(['category_id' => $categoryA->id]);
-    $inB  = Event::factory()->create(['category_id' => $categoryB->id]);
+    $inA = Event::factory()->create(['category_id' => $categoryA->id]);
+    $inB = Event::factory()->create(['category_id' => $categoryB->id]);
 
     $response = $this->get(route('events.index', ['category' => 'race-stages']));
 
@@ -49,7 +47,7 @@ test('sponsor filter returns only events for that sponsor', function () {
     $sponsorA = Sponsor::factory()->create(['slug' => 'santos']);
     $sponsorB = Sponsor::factory()->create(['slug' => 'other']);
 
-    $match   = Event::factory()->create(['sponsor_id' => $sponsorA->id]);
+    $match = Event::factory()->create(['sponsor_id' => $sponsorA->id]);
     $noMatch = Event::factory()->create(['sponsor_id' => $sponsorB->id]);
 
     $response = $this->get(route('events.index', ['sponsor' => 'santos']));
@@ -61,28 +59,10 @@ test('sponsor filter returns only events for that sponsor', function () {
         );
 });
 
-// ── Location filter ───────────────────────────────────────────────────────────
-
-test('location filter returns only events at that location', function () {
-    $locationA = Location::factory()->create();
-    $locationB = Location::factory()->create();
-
-    $match   = Event::factory()->create(['location_id' => $locationA->id]);
-    $noMatch = Event::factory()->create(['location_id' => $locationB->id]);
-
-    $response = $this->get(route('events.index', ['location' => $locationA->id]));
-
-    $response->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->has('events.data', 1)
-            ->where('events.data.0.id', $match->id)
-        );
-});
-
 // ── Date filters ──────────────────────────────────────────────────────────────
 
 test('date filter returns only events on that date', function () {
-    $match   = Event::factory()->startingAt('2026-05-10 09:00:00')->create();
+    $match = Event::factory()->startingAt('2026-05-10 09:00:00')->create();
     $noMatch = Event::factory()->startingAt('2026-05-11 09:00:00')->create();
 
     $response = $this->get(route('events.index', ['date' => '2026-05-10']));
@@ -95,13 +75,13 @@ test('date filter returns only events on that date', function () {
 });
 
 test('date range filter returns events within the range', function () {
-    $inRange  = Event::factory()->startingAt('2026-06-05 09:00:00')->create();
-    $before   = Event::factory()->startingAt('2026-05-31 09:00:00')->create();
-    $after    = Event::factory()->startingAt('2026-06-11 09:00:00')->create();
+    $inRange = Event::factory()->startingAt('2026-06-05 09:00:00')->create();
+    $before = Event::factory()->startingAt('2026-05-31 09:00:00')->create();
+    $after = Event::factory()->startingAt('2026-06-11 09:00:00')->create();
 
     $response = $this->get(route('events.index', [
         'start_date' => '2026-06-01',
-        'end_date'   => '2026-06-10',
+        'end_date' => '2026-06-10',
     ]));
 
     $response->assertOk()
@@ -112,13 +92,13 @@ test('date range filter returns events within the range', function () {
 });
 
 test('date filter takes precedence over date range when both are present', function () {
-    $onDate    = Event::factory()->startingAt('2026-05-10 09:00:00')->create();
-    $inRange   = Event::factory()->startingAt('2026-05-15 09:00:00')->create();
+    $onDate = Event::factory()->startingAt('2026-05-10 09:00:00')->create();
+    $inRange = Event::factory()->startingAt('2026-05-15 09:00:00')->create();
 
     $response = $this->get(route('events.index', [
-        'date'       => '2026-05-10',
+        'date' => '2026-05-10',
         'start_date' => '2026-05-01',
-        'end_date'   => '2026-05-31',
+        'end_date' => '2026-05-31',
     ]));
 
     $response->assertOk()
@@ -134,7 +114,7 @@ test('date filter takes precedence over date range when both are present', funct
 // boolean validation — see the regression test below.
 
 test('featured filter returns only featured events', function () {
-    $featured    = Event::factory()->featured()->create();
+    $featured = Event::factory()->featured()->create();
     $notFeatured = Event::factory()->create();
 
     $this->get(route('events.index', ['featured' => '1']))
@@ -146,7 +126,7 @@ test('featured filter returns only featured events', function () {
 });
 
 test('rides_only filter returns only ride events', function () {
-    $ride    = Event::factory()->ride(50.0)->create();
+    $ride = Event::factory()->ride(50.0)->create();
     $nonRide = Event::factory()->create();
 
     $this->get(route('events.index', ['rides_only' => '1']))
@@ -170,7 +150,7 @@ test('free filter returns only free events', function () {
 });
 
 test('recurring filter returns only recurring events', function () {
-    $recurring    = Event::factory()->recurring()->create();
+    $recurring = Event::factory()->recurring()->create();
     $notRecurring = Event::factory()->create();
 
     $this->get(route('events.index', ['recurring' => '1']))
@@ -182,7 +162,7 @@ test('recurring filter returns only recurring events', function () {
 });
 
 test('womens filter returns only women\'s events', function () {
-    $womens    = Event::factory()->womens()->create();
+    $womens = Event::factory()->womens()->create();
     $notWomens = Event::factory()->create();
 
     $this->get(route('events.index', ['womens' => '1']))
@@ -204,7 +184,7 @@ test('boolean filter rejects the string "true" — only "1" and "0" are valid', 
 
 test('min_distance filter excludes rides below threshold', function () {
     $short = Event::factory()->ride(20.0)->create();
-    $long  = Event::factory()->ride(100.0)->create();
+    $long = Event::factory()->ride(100.0)->create();
 
     $response = $this->get(route('events.index', ['min_distance' => 50]));
 
@@ -217,7 +197,7 @@ test('min_distance filter excludes rides below threshold', function () {
 
 test('max_distance filter excludes rides above threshold', function () {
     $short = Event::factory()->ride(20.0)->create();
-    $long  = Event::factory()->ride(100.0)->create();
+    $long = Event::factory()->ride(100.0)->create();
 
     $response = $this->get(route('events.index', ['max_distance' => 50]));
 
@@ -244,7 +224,7 @@ test('min_elevation filter excludes events below elevation threshold', function 
 });
 
 test('max_elevation filter excludes events above elevation threshold', function () {
-    $flat  = Event::factory()->ride(50.0, 100)->create();
+    $flat = Event::factory()->ride(50.0, 100)->create();
     $hilly = Event::factory()->ride(50.0, 1500)->create();
 
     $response = $this->get(route('events.index', ['max_elevation' => 500]));
@@ -259,7 +239,7 @@ test('max_elevation filter excludes events above elevation threshold', function 
 // ── Cost filters ──────────────────────────────────────────────────────────────
 
 test('min_cost filter excludes cheap events', function () {
-    $cheap     = Event::factory()->paid(10.0, 20.0)->create();
+    $cheap = Event::factory()->paid(10.0, 20.0)->create();
     $expensive = Event::factory()->paid(100.0, 150.0)->create();
 
     $response = $this->get(route('events.index', ['min_cost' => 50]));
@@ -273,15 +253,14 @@ test('min_cost filter excludes cheap events', function () {
 
 test('max_cost filter excludes events above budget and includes free events', function () {
     $affordable = Event::factory()->paid(10.0, 30.0)->create();
-    $expensive  = Event::factory()->paid(100.0, 200.0)->create();
-    $free       = Event::factory()->free()->create();
+    $expensive = Event::factory()->paid(100.0, 200.0)->create();
+    $free = Event::factory()->free()->create();
 
     $this->get(route('events.index', ['max_cost' => 50]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('events.data', 2)
-            ->where('events.data', fn ($data) =>
-                collect($data)->pluck('id')->contains($affordable->id) &&
+            ->where('events.data', fn ($data) => collect($data)->pluck('id')->contains($affordable->id) &&
                 collect($data)->pluck('id')->contains($free->id) &&
                 ! collect($data)->pluck('id')->contains($expensive->id)
             )
@@ -291,8 +270,8 @@ test('max_cost filter excludes events above budget and includes free events', fu
 // ── Tags filter ───────────────────────────────────────────────────────────────
 
 test('tags filter returns events with the specified tag', function () {
-    $tag     = Tag::factory()->create(['slug' => 'family-friendly']);
-    $match   = Event::factory()->create();
+    $tag = Tag::factory()->create(['slug' => 'family-friendly']);
+    $match = Event::factory()->create();
     $noMatch = Event::factory()->create();
 
     $match->tags()->attach($tag);
@@ -310,7 +289,7 @@ test('tags filter with multiple tags uses AND logic', function () {
     $tagA = Tag::factory()->create(['slug' => 'tag-a']);
     $tagB = Tag::factory()->create(['slug' => 'tag-b']);
 
-    $both  = Event::factory()->create();
+    $both = Event::factory()->create();
     $both->tags()->attach([$tagA->id, $tagB->id]);
 
     $onlyA = Event::factory()->create();
@@ -328,7 +307,7 @@ test('tags filter with multiple tags uses AND logic', function () {
 // ── Sorting ───────────────────────────────────────────────────────────────────
 
 test('sort by date ascending orders earliest event first', function () {
-    $later  = Event::factory()->startingAt(now()->addDays(5)->toDateTimeString())->create();
+    $later = Event::factory()->startingAt(now()->addDays(5)->toDateTimeString())->create();
     $sooner = Event::factory()->startingAt(now()->addDays(2)->toDateTimeString())->create();
 
     $response = $this->get(route('events.index', ['sort' => 'date', 'order' => 'asc']));
@@ -340,7 +319,7 @@ test('sort by date ascending orders earliest event first', function () {
 });
 
 test('sort by date descending orders latest event first', function () {
-    $later  = Event::factory()->startingAt(now()->addDays(5)->toDateTimeString())->create();
+    $later = Event::factory()->startingAt(now()->addDays(5)->toDateTimeString())->create();
     $sooner = Event::factory()->startingAt(now()->addDays(2)->toDateTimeString())->create();
 
     $response = $this->get(route('events.index', ['sort' => 'date', 'order' => 'desc']));
@@ -353,8 +332,8 @@ test('sort by date descending orders latest event first', function () {
 
 test('sort by distance places nulls last', function () {
     $nonRide = Event::factory()->create(['ride_distance_km' => null]);
-    $short   = Event::factory()->ride(10.0)->create();
-    $long    = Event::factory()->ride(100.0)->create();
+    $short = Event::factory()->ride(10.0)->create();
+    $long = Event::factory()->ride(100.0)->create();
 
     $this->get(route('events.index', ['sort' => 'distance', 'order' => 'asc']))
         ->assertOk()
@@ -366,8 +345,8 @@ test('sort by distance places nulls last', function () {
 
 test('sort by cost places free events first and sorts by min cost', function () {
     $expensive = Event::factory()->paid(100.0)->create();
-    $cheap     = Event::factory()->paid(10.0)->create();
-    $free      = Event::factory()->free()->create();
+    $cheap = Event::factory()->paid(10.0)->create();
+    $free = Event::factory()->free()->create();
 
     $this->get(route('events.index', ['sort' => 'cost', 'order' => 'asc']))
         ->assertOk()
@@ -411,7 +390,7 @@ test('invalid date format returns a validation error', function () {
 test('end_date before start_date returns a validation error', function () {
     $response = $this->get(route('events.index', [
         'start_date' => '2026-06-10',
-        'end_date'   => '2026-06-01',
+        'end_date' => '2026-06-01',
     ]));
 
     $response->assertSessionHasErrors('end_date');
@@ -463,9 +442,9 @@ test('featured events are not included when filters are active', function () {
 
 test('active filters are returned in the response', function () {
     $response = $this->get(route('events.index', [
-        'featured'  => '1',
-        'sort'      => 'date',
-        'order'     => 'desc',
+        'featured' => '1',
+        'sort' => 'date',
+        'order' => 'desc',
     ]));
 
     $response->assertOk()

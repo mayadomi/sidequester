@@ -2,7 +2,6 @@
 
 use App\Models\Category;
 use App\Models\Event;
-use App\Models\Location;
 use App\Models\User;
 
 test('guest is redirected from my events page', function () {
@@ -20,12 +19,10 @@ test('viewer cannot access my events page', function () {
 test('editor can view their own events', function () {
     $editor = User::factory()->create(['role' => 'editor']);
     $category = Category::factory()->create();
-    $location = Location::factory()->create();
 
     Event::factory()->count(2)->create([
         'created_by_user_id' => $editor->id,
         'category_id' => $category->id,
-        'location_id' => $location->id,
     ]);
 
     // Another editor's event — should not appear
@@ -33,7 +30,6 @@ test('editor can view their own events', function () {
     Event::factory()->create([
         'created_by_user_id' => $other->id,
         'category_id' => $category->id,
-        'location_id' => $location->id,
     ]);
 
     $this->actingAs($editor)

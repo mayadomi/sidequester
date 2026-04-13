@@ -9,7 +9,6 @@ use App\Http\Requests\UpdateEventRequest;
 use App\Http\Resources\EventResource;
 use App\Models\Category;
 use App\Models\Event;
-use App\Models\Location;
 use App\Models\Sponsor;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
@@ -29,7 +28,7 @@ class EventPageController extends Controller
     {
         $tduYear = (int) ($request->input('year') ?: Event::currentTduYear());
 
-        $query = Event::with(['category', 'sponsor', 'location', 'tags'])
+        $query = Event::with(['category', 'sponsor', 'tags'])
             ->forTduYear($tduYear)
             ->withCount('favouritedBy');
 
@@ -58,8 +57,6 @@ class EventPageController extends Controller
         // Get filter options (cached — these change only when events are imported)
         $categories = Cache::remember('filter_categories', 3600, fn () => Category::withCount('events')->orderBy('name')->get()
         );
-        $locations = Cache::remember('filter_locations', 3600, fn () => Location::withCount('events')->orderBy('name')->get()
-        );
         $tags = Cache::remember('filter_tags', 3600, fn () => Tag::withCount('events')->orderBy('name')->get()
         );
 
@@ -68,7 +65,7 @@ class EventPageController extends Controller
         $contentFilters = $request->except(['page', 'per_page', 'year', 'sort', 'order']);
         if (empty($contentFilters)) {
             $featuredEvents = EventResource::collection(
-                Event::with(['category', 'sponsor', 'location', 'tags'])
+                Event::with(['category', 'sponsor', 'tags'])
                     ->forTduYear($tduYear)
                     ->withCount('favouritedBy')
                     ->featured()
@@ -81,10 +78,9 @@ class EventPageController extends Controller
         return Inertia::render('events/index', [
             'events' => $events,
             'categories' => $categories,
-            'locations' => $locations,
             'tags' => $tags,
             'filters' => (object) $request->only([
-                'search', 'date', 'start_date', 'end_date', 'category', 'sponsor', 'location',
+                'search', 'date', 'start_date', 'end_date', 'category', 'sponsor',
                 'min_distance', 'max_distance', 'min_elevation', 'max_elevation',
                 'rides_only', 'featured', 'free', 'recurring', 'womens', 'min_cost', 'max_cost',
                 'min_favourites', 'tags', 'sort', 'order',
@@ -262,7 +258,7 @@ class EventPageController extends Controller
      */
     public function show(Event $event): Response
     {
-        $event->load(['category', 'sponsor', 'location', 'tags']);
+        $event->load(['category', 'sponsor', 'tags']);
         $event->loadCount('favouritedBy');
 
         // Check if current user has favourited this event

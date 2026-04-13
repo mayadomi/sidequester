@@ -136,7 +136,6 @@ test('editor with verified sponsor can create event for that sponsor', function 
     $editor = User::factory()->create(['role' => 'editor']);
     $sponsor = Sponsor::factory()->create();
     $category = \App\Models\Category::factory()->create();
-    $location = \App\Models\Location::factory()->create();
 
     SponsorClaim::factory()->verified()->create([
         'user_id' => $editor->id,
@@ -149,7 +148,6 @@ test('editor with verified sponsor can create event for that sponsor', function 
             'start_datetime' => now()->addDay()->toDateTimeString(),
             'end_datetime' => now()->addDay()->addHours(2)->toDateTimeString(),
             'category_id' => $category->id,
-            'location_id' => $location->id,
             'sponsor_id' => $sponsor->id,
             'is_featured' => false,
             'is_recurring' => false,
@@ -163,7 +161,6 @@ test('editor without verified sponsor cannot create event with a sponsor', funct
     $editor = User::factory()->create(['role' => 'editor']);
     $sponsor = Sponsor::factory()->create();
     $category = \App\Models\Category::factory()->create();
-    $location = \App\Models\Location::factory()->create();
 
     $this->actingAs($editor)
         ->post(route('events.store'), [
@@ -171,7 +168,6 @@ test('editor without verified sponsor cannot create event with a sponsor', funct
             'start_datetime' => now()->addDay()->toDateTimeString(),
             'end_datetime' => now()->addDay()->addHours(2)->toDateTimeString(),
             'category_id' => $category->id,
-            'location_id' => $location->id,
             'sponsor_id' => $sponsor->id,
             'is_featured' => false,
             'is_recurring' => false,
@@ -185,7 +181,6 @@ test('admin can create event with any sponsor', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $sponsor = Sponsor::factory()->create();
     $category = \App\Models\Category::factory()->create();
-    $location = \App\Models\Location::factory()->create();
 
     $this->actingAs($admin)
         ->post(route('events.store'), [
@@ -193,7 +188,6 @@ test('admin can create event with any sponsor', function () {
             'start_datetime' => now()->addDay()->toDateTimeString(),
             'end_datetime' => now()->addDay()->addHours(2)->toDateTimeString(),
             'category_id' => $category->id,
-            'location_id' => $location->id,
             'sponsor_id' => $sponsor->id,
             'is_featured' => false,
             'is_recurring' => false,

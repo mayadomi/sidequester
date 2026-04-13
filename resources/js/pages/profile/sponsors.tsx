@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { Building2, CheckCircle, Clock, Plus, Tag, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -29,7 +29,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { destroy, store } from '@/actions/App/Http/Controllers/ProfileSponsorClaimController';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, SharedData } from '@/types';
 
 interface Sponsor {
     id: number;
@@ -73,6 +73,7 @@ const statusBadge = (status: SponsorClaim['status']) => {
 };
 
 export default function ProfileSponsors({ claims, availableSponsors }: ProfileSponsorsProps) {
+    const { contactEmail } = usePage<SharedData>().props;
     const [claimSponsorId, setClaimSponsorId] = useState('');
     const [claimNote, setClaimNote] = useState('');
     const [sponsorName, setSponsorName] = useState('');
@@ -117,8 +118,8 @@ export default function ProfileSponsors({ claims, availableSponsors }: ProfileSp
 
                     <p className="text-sm text-muted-foreground">
                         If you have any queries, please contact us at{' '}
-                        <a href="mailto:info@tdu-planner.com.au" className="text-foreground underline underline-offset-4 hover:text-primary">
-                            info@tdu-planner.com.au
+                        <a href={`mailto:${contactEmail}`} className="text-foreground underline underline-offset-4 hover:text-primary">
+                            {contactEmail}
                         </a>
                     </p>
 

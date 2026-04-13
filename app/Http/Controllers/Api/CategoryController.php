@@ -38,7 +38,7 @@ class CategoryController extends Controller
     public function events(Category $category): EventCollection
     {
         $events = $category->events()
-            ->with(['sponsor', 'location'])
+            ->with(['sponsor'])
             ->orderBy('start_datetime')
             ->paginate(20);
 

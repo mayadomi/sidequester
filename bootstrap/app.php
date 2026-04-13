@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserIsEditor;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'editor' => EnsureUserIsEditor::class,
-            'admin'  => EnsureUserIsAdmin::class,
+            'admin' => EnsureUserIsAdmin::class,
         ]);
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
@@ -30,5 +31,19 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $dbUnavailable = fn () => response()->view('errors.service-unavailable', [], 503);
+
+        $exceptions->render(function (QueryException $e) use ($dbUnavailable) {
+            if (str_contains($e->getMessage(), 'could not connect')
+                || str_contains($e->getMessage(), 'Connection refused')
+                || str_contains($e->getMessage(), 'could not translate host name')
+                || str_contains($e->getMessage(), 'SQLSTATE[08')
+            ) {
+                return $dbUnavailable();
+            }
+        });
+
+        $exceptions->render(function (\PDOException $e) use ($dbUnavailable) {
+            return $dbUnavailable();
+        });
     })->create();

@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, SharedData } from '@/types';
 
 interface SimpleOption {
     id: number;
@@ -89,6 +89,7 @@ type FormData = {
 };
 
 export default function EventEdit({ event, categories, sponsors, tags }: EventEditProps) {
+    const { name } = usePage<SharedData>().props;
     const fromParam = new URLSearchParams(window.location.search).get('from');
     // fromParam points to either an events list URL (/events?page=N) or a show URL (/events/{id})
     const isFromList = fromParam ? !/^\/events\/\d+/.test(fromParam) : false;
@@ -156,7 +157,7 @@ export default function EventEdit({ event, categories, sponsors, tags }: EventEd
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Edit: ${event.title} | TDU Planner`} />
+            <Head title={`Edit: ${event.title} | ${name}`} />
 
             <div className="mx-auto max-w-3xl p-4 lg:p-6">
                 <Button variant="ghost" size="sm" className="mb-4" asChild>

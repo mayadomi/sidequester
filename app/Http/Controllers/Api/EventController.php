@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\FiltersEvents;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\FilterEventsRequest;
 use App\Http\Resources\EventCollection;
 use App\Http\Resources\EventResource;
@@ -38,7 +38,7 @@ class EventController extends Controller
      */
     public function index(FilterEventsRequest $request): EventCollection
     {
-        $query = Event::with(['category', 'sponsor', 'location', 'tags']);
+        $query = Event::with(['category', 'sponsor', 'tags']);
 
         // Always include favourites count for popularity sorting/display
         $query->withCount('favouritedBy');
@@ -57,7 +57,7 @@ class EventController extends Controller
      */
     public function happeningNow(): EventCollection
     {
-        $events = Event::with(['category', 'sponsor', 'location', 'tags'])
+        $events = Event::with(['category', 'sponsor', 'tags'])
             ->withCount('favouritedBy')
             ->happeningNow()
             ->orderBy('end_datetime')
@@ -71,7 +71,7 @@ class EventController extends Controller
      */
     public function featured(): EventCollection
     {
-        $events = Event::with(['category', 'sponsor', 'location', 'tags'])
+        $events = Event::with(['category', 'sponsor', 'tags'])
             ->withCount('favouritedBy')
             ->featured()
             ->upcoming()
@@ -88,7 +88,7 @@ class EventController extends Controller
     {
         $limit = min((int) $request->input('limit', 10), 50);
 
-        $events = Event::with(['category', 'sponsor', 'location', 'tags'])
+        $events = Event::with(['category', 'sponsor', 'tags'])
             ->withCount('favouritedBy')
             ->orderBy('favourited_by_count', 'desc')
             ->limit($limit)
@@ -102,7 +102,7 @@ class EventController extends Controller
      */
     public function show(Event $event): EventResource
     {
-        $event->load(['category', 'sponsor', 'location', 'tags']);
+        $event->load(['category', 'sponsor', 'tags']);
         $event->loadCount('favouritedBy');
 
         return new EventResource($event);

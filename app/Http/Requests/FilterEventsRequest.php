@@ -21,7 +21,6 @@ class FilterEventsRequest extends FormRequest
             'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
             'category' => 'nullable|string|max:100',
             'sponsor' => 'nullable|string|max:100',
-            'location' => 'nullable|integer|min:1',
             'min_distance' => 'nullable|numeric|min:0',
             'max_distance' => 'nullable|numeric|min:0',
             'min_elevation' => 'nullable|integer|min:0',

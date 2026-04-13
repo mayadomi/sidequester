@@ -24,6 +24,8 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
+    festivalName: string;
+    contactEmail: string;
     auth: Auth;
     sidebarOpen: boolean;
     [key: string]: unknown;

@@ -21,7 +21,7 @@ import type { BreadcrumbItem, SharedData } from '@/types';
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Welcome', href: '/welcome' }];
 
 export default function Welcome() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, name: appName, festivalName } = usePage<SharedData>().props;
     const role = auth?.user?.role;
     const name = auth?.user?.name?.split(' ')[0] ?? 'there';
 
@@ -29,12 +29,12 @@ export default function Welcome() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Welcome | TDU Planner" />
+            <Head title={`Welcome | ${appName}`} />
             <div className="mx-auto max-w-3xl p-4 py-10 sm:p-8 sm:py-14">
                 {isCreator ? (
                     <CreatorWelcome name={name} role={role as string} />
                 ) : (
-                    <ViewerWelcome name={name} />
+                    <ViewerWelcome name={name} appName={appName} festivalName={festivalName} />
                 )}
             </div>
         </AppLayout>
@@ -43,7 +43,7 @@ export default function Welcome() {
 
 // ─── Viewer welcome ───────────────────────────────────────────────────────────
 
-function ViewerWelcome({ name }: { name: string }) {
+function ViewerWelcome({ name, appName, festivalName }: { name: string; appName: string; festivalName: string }) {
     const features = [
         {
             icon: Calendar,
@@ -55,7 +55,7 @@ function ViewerWelcome({ name }: { name: string }) {
         {
             icon: Heart,
             title: 'Save your favourites',
-            description: "Tap the heart on any event to build your personal TDU itinerary.",
+            description: `Tap the heart on any event to build your personal ${festivalName} itinerary.`,
             href: '/favourites',
             color: 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400',
         },
@@ -84,7 +84,7 @@ function ViewerWelcome({ name }: { name: string }) {
                 </div>
                 <h1 className="text-3xl font-bold sm:text-4xl">Welcome, {name}!</h1>
                 <p className="mt-3 text-lg text-muted-foreground">
-                    Your TDU Planner account is ready. Here's what you can do.
+                    Your {appName} account is ready. Here's what you can do.
                 </p>
             </div>
 

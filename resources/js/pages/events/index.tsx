@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Calendar, ChevronLeft, ChevronRight, Filter, Sparkles, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
@@ -14,13 +14,12 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import AppLayout from '@/layouts/app-layout';
-import type { BreadcrumbItem } from '@/types';
-import type { Category, Event, EventFilters as Filters, Location, PaginatedResponse, Tag } from '@/types/events';
+import type { BreadcrumbItem, SharedData } from '@/types';
+import type { Category, Event, EventFilters as Filters, PaginatedResponse, Tag } from '@/types/events';
 
 interface EventsIndexProps {
     events: PaginatedResponse<Event>;
     categories: Category[];
-    locations: Location[];
     tags: Tag[];
     filters: Filters;
     featuredEvents?: Event[];
@@ -35,13 +34,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function EventsIndex({
     events,
     categories,
-    locations,
     tags,
     filters,
     featuredEvents,
     tduYear,
     availableYears,
 }: EventsIndexProps) {
+    const { name, festivalName } = usePage<SharedData>().props;
     const [filtersOpen, setFiltersOpen] = useState(false);
 
     const activeFilterCount = Object.values(filters).filter(
@@ -80,7 +79,7 @@ export default function EventsIndex({
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Events | TDU Planner" />
+            <Head title={`Events | ${name}`} />
 
             <div className="flex flex-col gap-4 p-3 sm:gap-6 sm:p-4 lg:p-6">
                 {/* Header */}
@@ -106,7 +105,7 @@ export default function EventsIndex({
                                                 : 'text-muted-foreground hover:text-foreground'
                                         }`}
                                     >
-                                        TDU {year}
+                                        {festivalName} {year}
                                     </button>
                                 ))}
                             </div>
@@ -154,7 +153,6 @@ export default function EventsIndex({
                             <div className="px-4 pb-4">
                                 <EventFilters
                                     categories={categories}
-                                    locations={locations}
                                     tags={tags}
                                     currentFilters={filters}
                                     tduYear={tduYear}
@@ -173,7 +171,6 @@ export default function EventsIndex({
                     <aside className="hidden lg:sticky lg:top-4 lg:block lg:self-start">
                         <EventFilters
                             categories={categories}
-                            locations={locations}
                             tags={tags}
                             currentFilters={filters}
                             tduYear={tduYear}

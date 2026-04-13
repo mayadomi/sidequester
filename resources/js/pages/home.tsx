@@ -50,21 +50,21 @@ function formatEventTime(iso: string): string {
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function Home({ upcomingEvents }: HomeProps) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, name, festivalName, contactEmail } = usePage<SharedData>().props;
     const isLoggedIn = !!auth?.user;
 
     return (
         <>
-            <Head title="TDU Planner — Tour Down Under Event Guide" />
+            <Head title={`${name} — Tour Down Under Event Guide`} />
             <div className="flex min-h-screen flex-col bg-background text-foreground">
                 <SiteNav isLoggedIn={isLoggedIn} userName={auth?.user?.name} />
                 <main className="flex-1">
-                    <HeroSection isLoggedIn={isLoggedIn} />
+                    <HeroSection isLoggedIn={isLoggedIn} festivalName={festivalName} />
                     <UpcomingEventsSection events={upcomingEvents} isLoggedIn={isLoggedIn} />
-                    <FeaturesSection />
-                    {!isLoggedIn && <CreatorCtaSection />}
+                    <FeaturesSection name={name} festivalName={festivalName} />
+                    {!isLoggedIn && <CreatorCtaSection name={name} festivalName={festivalName} contactEmail={contactEmail} />}
                 </main>
-                <SiteFooter />
+                <SiteFooter name={name} contactEmail={contactEmail} />
             </div>
         </>
     );
@@ -127,7 +127,7 @@ function SiteNav({ isLoggedIn, userName }: { isLoggedIn: boolean; userName?: str
 
 // ─── Hero section ─────────────────────────────────────────────────────────────
 
-function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
+function HeroSection({ isLoggedIn, festivalName }: { isLoggedIn: boolean; festivalName: string }) {
     return (
         <section className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 py-20 text-white sm:py-28">
             {/* Subtle background pattern */}
@@ -148,12 +148,12 @@ function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
                 <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
                     Your guide to every
                     <br />
-                    <span className="text-amber-200">TDU event</span>
+                    <span className="text-amber-200">{festivalName} event</span>
                 </h1>
 
                 <p className="mx-auto mt-6 max-w-2xl text-lg text-white/85 sm:text-xl">
                     Discover race stages, group rides, watch parties, expos and more — all in one place.
-                    Plan your perfect TDU experience.
+                    Plan your perfect {festivalName} experience.
                 </p>
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -189,7 +189,7 @@ function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
                                 className="bg-white font-semibold text-orange-600 hover:bg-orange-50"
                             >
                                 <Link href={register().url}>
-                                    Plan My TDU
+                                    Plan My {festivalName}
                                     <ArrowRight className="ml-2 size-4" />
                                 </Link>
                             </Button>
@@ -426,13 +426,13 @@ function EventCarouselCard({ event, isLoggedIn }: { event: Event; isLoggedIn: bo
 
 // ─── Features section ─────────────────────────────────────────────────────────
 
-function FeaturesSection() {
+function FeaturesSection({ name, festivalName }: { name: string; festivalName: string }) {
     const features = [
         {
             icon: Calendar,
             title: 'All events in one place',
             description:
-                'Race stages, watch parties, group rides, expos, food & wine events — everything TDU, curated and up to date.',
+                `Race stages, watch parties, group rides, expos, food & wine events — everything ${festivalName}, curated and up to date.`,
         },
         {
             icon: Map,
@@ -450,7 +450,7 @@ function FeaturesSection() {
             icon: Trophy,
             title: 'Daily schedule',
             description:
-                'Navigate the packed TDU calendar with a day-by-day timeline that makes planning your week effortless.',
+                `Navigate the packed ${festivalName} calendar with a day-by-day timeline that makes planning your week effortless.`,
         },
         {
             icon: Users,
@@ -470,8 +470,8 @@ function FeaturesSection() {
         <section className="bg-muted/40 py-14 sm:py-20">
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
                 <div className="mb-12 text-center">
-                    <p className="text-sm font-semibold uppercase tracking-wide text-orange-500">Why TDU Planner</p>
-                    <h2 className="mt-1 text-2xl font-bold sm:text-3xl">Everything you need for TDU</h2>
+                    <p className="text-sm font-semibold uppercase tracking-wide text-orange-500">Why {name}</p>
+                    <h2 className="mt-1 text-2xl font-bold sm:text-3xl">Everything you need for {festivalName}</h2>
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -492,7 +492,7 @@ function FeaturesSection() {
 
 // ─── Creator CTA section ──────────────────────────────────────────────────────
 
-function CreatorCtaSection() {
+function CreatorCtaSection({ name, festivalName, contactEmail }: { name: string; festivalName: string; contactEmail: string }) {
     return (
         <section className="py-14 sm:py-20">
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -503,12 +503,12 @@ function CreatorCtaSection() {
                                 For event organisers &amp; sponsors
                             </Badge>
                             <h2 className="text-2xl font-bold sm:text-3xl">
-                                List your TDU event or sponsorship
+                                List your {festivalName} event or sponsorship
                             </h2>
                             <p className="mt-4 text-white/85">
                                 Are you organising a group ride, watch party, expo stand, or community event
-                                during TDU? Get your event in front of thousands of cycling fans and
-                                participants by listing it on TDU Planner.
+                                during {festivalName}? Get your event in front of thousands of cycling fans and
+                                participants by listing it on {name}.
                             </p>
                             <ul className="mt-6 space-y-2 text-sm text-white/80">
                                 <li className="flex items-center gap-2">
@@ -546,7 +546,7 @@ function CreatorCtaSection() {
                                 variant="ghost"
                                 className="text-white/80 hover:bg-white/10 hover:text-white"
                             >
-                                <a href="mailto:hello@tdu-planner.com.au">
+                                <a href={`mailto:${contactEmail}`}>
                                     <Mail className="mr-1.5 size-4" />
                                     Contact us directly
                                 </a>
@@ -561,7 +561,7 @@ function CreatorCtaSection() {
 
 // ─── Site footer ──────────────────────────────────────────────────────────────
 
-function SiteFooter() {
+function SiteFooter({ name, contactEmail }: { name: string; contactEmail: string }) {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -605,9 +605,9 @@ function SiteFooter() {
                         <h4 className="mb-4 text-sm font-semibold">Contact</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li>
-                                <a href="mailto:hello@tdu-planner.com.au" className="flex items-center gap-2 hover:text-foreground">
+                                <a href={`mailto:${contactEmail}`} className="flex items-center gap-2 hover:text-foreground">
                                     <Mail className="size-3.5" />
-                                    hello@tdu-planner.com.au
+                                    {contactEmail}
                                 </a>
                             </li>
                             <li className="flex items-start gap-2">
@@ -620,7 +620,7 @@ function SiteFooter() {
 
                 <div className="mt-10 border-t pt-6 text-center text-xs text-muted-foreground">
                     <p>
-                        &copy; {currentYear} TDU Planner. Not affiliated with Santos Tour Down Under or Events South Australia.
+                        &copy; {currentYear} {name}. Not affiliated with Santos Tour Down Under or Events South Australia.
                     </p>
                 </div>
             </div>

@@ -17,7 +17,7 @@ class FavouriteController extends Controller
     {
         $events = $request->user()
             ->favouriteEvents()
-            ->with(['category', 'sponsor', 'location'])
+            ->with(['category', 'sponsor'])
             ->orderBy('start_datetime')
             ->get();
 
