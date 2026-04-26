@@ -28,6 +28,7 @@ export interface SharedData {
     contactEmail: string;
     auth: Auth;
     sidebarOpen: boolean;
+    activeFilters: Record<string, string | string[]>;
     [key: string]: unknown;
 }
 

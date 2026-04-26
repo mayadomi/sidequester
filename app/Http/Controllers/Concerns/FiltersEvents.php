@@ -8,10 +8,57 @@ use Illuminate\Http\Request;
 trait FiltersEvents
 {
     /**
+     * Filter keys that persist across Events / Schedule / Map pages via session.
+     * Intentionally excludes search, sort, order, date ranges, and pagination.
+     */
+    protected function persistentFilterKeys(): array
+    {
+        return [
+            'category', 'tags',
+            'min_distance', 'max_distance',
+            'min_elevation', 'max_elevation',
+            'rides_only', 'featured', 'free',
+            'recurring', 'womens',
+            'min_cost', 'max_cost',
+        ];
+    }
+
+    /**
+     * Sync cross-page persistent filters with the session.
+     *
+     * - _clear=1  → wipe session, nothing merged
+     * - filter params present → save to session
+     * - no filter params → restore session values into request
+     */
+    protected function syncPersistentFilters(Request $request): void
+    {
+        if ($request->boolean('_clear')) {
+            session()->forget('event_filters');
+
+            return;
+        }
+
+        $keys = $this->persistentFilterKeys();
+        $hasActiveFilters = collect($keys)->some(fn ($k) => $request->has($k));
+
+        if ($hasActiveFilters) {
+            $active = array_filter(
+                $request->only($keys),
+                fn ($v) => $v !== null && $v !== '' && $v !== false && $v !== [] && $v !== '0',
+            );
+            session(['event_filters' => $active]);
+        } else {
+            $request->mergeIfMissing(session('event_filters', []));
+        }
+    }
+
+    /**
      * Apply request filters to an Event query.
      */
     protected function applyEventFilters(Builder $query, Request $request): void
     {
+        $this->syncPersistentFilters($request);
+
         // Search
         if ($request->filled('search')) {
             $query->search($request->search);

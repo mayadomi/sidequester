@@ -26,6 +26,10 @@ interface EventFiltersProps {
     currentFilters: Filters;
     tduYear?: number;
     availableYears?: number[];
+    extraParams?: Record<string, string | number>;
+    route?: string;
+    hideDateRange?: boolean;
+    hideSort?: boolean;
     className?: string;
     onApply?: () => void;
     bare?: boolean;
@@ -37,6 +41,10 @@ export function EventFilters({
     currentFilters,
     tduYear,
     availableYears,
+    extraParams,
+    route = '/events',
+    hideDateRange = false,
+    hideSort = false,
     className,
     onApply,
     bare = false,
@@ -59,13 +67,16 @@ export function EventFilters({
         if (tduYear !== undefined && availableYears && tduYear !== availableYears[0]) {
             params.year = tduYear;
         }
+        if (extraParams) {
+            Object.assign(params, extraParams);
+        }
         setIsLoading(true);
-        router.get('/events', params, {
+        router.get(route, params, {
             preserveState: true,
             onFinish: () => setIsLoading(false),
         });
         onApply?.();
-    }, [onApply, tduYear, availableYears]);
+    }, [onApply, tduYear, availableYears, route, extraParams]);
 
     // For instant-apply controls (checkboxes, selects, tags).
     const updateAndApply = useCallback(<K extends keyof Filters>(key: K, value: Filters[K]) => {
@@ -96,16 +107,19 @@ export function EventFilters({
     const resetFilters = useCallback(() => {
         setFilters({});
         setIsLoading(true);
-        const params: Record<string, FormDataConvertible> = {};
+        const params: Record<string, FormDataConvertible> = { _clear: 1 };
         if (tduYear !== undefined && availableYears && tduYear !== availableYears[0]) {
             params.year = tduYear;
         }
-        router.get('/events', params, {
+        if (extraParams) {
+            Object.assign(params, extraParams);
+        }
+        router.get(route, params, {
             preserveState: true,
             onFinish: () => setIsLoading(false),
         });
         onApply?.();
-    }, [onApply, tduYear, availableYears]);
+    }, [onApply, tduYear, availableYears, route, extraParams]);
 
     // Exclude 'search' — it has its own dedicated search bar above the page
     const { search: _search, ...sidebarFilters } = currentFilters;
@@ -239,7 +253,7 @@ export function EventFilters({
             )}
 
             {/* Date Range */}
-            <div className="space-y-4">
+            {!hideDateRange && <div className="space-y-4">
                 <Label className="text-sm font-medium">Date Range</Label>
                 <div className="grid gap-4">
                     <div className="space-y-2">
@@ -265,7 +279,7 @@ export function EventFilters({
                         />
                     </div>
                 </div>
-            </div>
+            </div>}
 
             {/* Expanded Filters */}
             {isExpanded && (
@@ -367,47 +381,51 @@ export function EventFilters({
                         </div>
                     </div>
 
-                    <Separator />
+                    {!hideSort && (
+                        <>
+                            <Separator />
 
-                    {/* Sort Options */}
-                    <div className="space-y-4">
-                        <Label className="text-sm font-medium">Sort</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="sort" className="text-xs text-muted-foreground">Sort by</Label>
-                                <Select
-                                    value={filters.sort || 'date'}
-                                    onValueChange={(value) => updateAndApply('sort', value as Filters['sort'])}
-                                >
-                                    <SelectTrigger id="sort">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="date">Date</SelectItem>
-                                        <SelectItem value="popularity">Popularity</SelectItem>
-                                        <SelectItem value="cost">Cost</SelectItem>
-                                        <SelectItem value="distance">Distance</SelectItem>
-                                        <SelectItem value="elevation">Elevation</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            {/* Sort Options */}
+                            <div className="space-y-4">
+                                <Label className="text-sm font-medium">Sort</Label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="sort" className="text-xs text-muted-foreground">Sort by</Label>
+                                        <Select
+                                            value={filters.sort || 'date'}
+                                            onValueChange={(value) => updateAndApply('sort', value as Filters['sort'])}
+                                        >
+                                            <SelectTrigger id="sort">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="date">Date</SelectItem>
+                                                <SelectItem value="popularity">Popularity</SelectItem>
+                                                <SelectItem value="cost">Cost</SelectItem>
+                                                <SelectItem value="distance">Distance</SelectItem>
+                                                <SelectItem value="elevation">Elevation</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="order" className="text-xs text-muted-foreground">Order</Label>
+                                        <Select
+                                            value={filters.order || 'asc'}
+                                            onValueChange={(value) => updateAndApply('order', value as Filters['order'])}
+                                        >
+                                            <SelectTrigger id="order">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="asc">Ascending</SelectItem>
+                                                <SelectItem value="desc">Descending</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="order" className="text-xs text-muted-foreground">Order</Label>
-                                <Select
-                                    value={filters.order || 'asc'}
-                                    onValueChange={(value) => updateAndApply('order', value as Filters['order'])}
-                                >
-                                    <SelectTrigger id="order">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="asc">Ascending</SelectItem>
-                                        <SelectItem value="desc">Descending</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </>
             )}
 

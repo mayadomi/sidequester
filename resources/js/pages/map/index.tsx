@@ -1,15 +1,25 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Clock, ExternalLink, Layers, MapPin, Mountain, Route, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, ExternalLink, Filter, Layers, MapPin, Mountain, Route, X } from 'lucide-react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { MapLayerMouseEvent } from 'maplibre-gl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Layer, Map as MapGL, Marker, Popup, Source } from 'react-map-gl/maplibre';
 
+import { EventFilters } from '@/components/events';
 import { FavouriteButton } from '@/components/events/favourite-button';
 import { Button } from '@/components/ui/button';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import type { BreadcrumbItem, SharedData } from '@/types';
+import type { Category, EventFilters as Filters, Tag } from '@/types/events';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,6 +51,9 @@ interface MapIndexProps {
     markers: MapMarker[];
     selectedDate: string;
     availableDates: string[];
+    categories: Category[];
+    tags: Tag[];
+    filters: Filters;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -119,9 +132,14 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Map', href: '/map' }];
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default function MapIndex({ markers, selectedDate, availableDates }: MapIndexProps) {
+export default function MapIndex({ markers, selectedDate, availableDates, categories, tags, filters }: MapIndexProps) {
     const { name } = usePage<SharedData>().props;
     const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+    const [filtersOpen, setFiltersOpen] = useState(false);
+
+    const activeFilterCount = Object.values(filters).filter(
+        v => v !== undefined && v !== '' && v !== false,
+    ).length;
     const [selectedMarker, setSelectedMarker] = useState<MapMarker | null>(null);
     const [selectedEvents, setSelectedEvents] = useState<MapEvent[]>([]);
     const [popupLngLat, setPopupLngLat] = useState<{ longitude: number; latitude: number } | null>(null);
@@ -323,8 +341,38 @@ export default function MapIndex({ markers, selectedDate, availableDates }: MapI
                         )}
                     </div>
 
-                    {/* Date navigation */}
+                    {/* Date navigation + filter button */}
                     <div className="mt-2 flex items-center gap-1 sm:mt-3 sm:gap-2">
+                        <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="icon" className="relative size-8 shrink-0 text-white hover:bg-white/20 sm:size-10" aria-label="Filters">
+                                    <Filter className="size-4 sm:size-5" />
+                                    {activeFilterCount > 0 && (
+                                        <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-[#ff7405] ring-2 ring-[#071e3d]" />
+                                    )}
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left" className="w-full overflow-y-auto sm:max-w-md">
+                                <SheetHeader>
+                                    <SheetTitle>Filters</SheetTitle>
+                                    <SheetDescription>Narrow down the events you want to see.</SheetDescription>
+                                </SheetHeader>
+                                <div className="px-4 pb-4">
+                                    <EventFilters
+                                        categories={categories}
+                                        tags={tags}
+                                        currentFilters={filters}
+                                        route="/map"
+                                        extraParams={{ date: selectedDate }}
+                                        hideDateRange
+                                        hideSort
+                                        onApply={() => setFiltersOpen(false)}
+                                        bare
+                                    />
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+
                         <Button
                             variant="ghost"
                             size="icon"

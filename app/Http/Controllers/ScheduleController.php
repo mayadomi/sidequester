@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\FiltersEvents;
 use App\Models\Category;
 use App\Models\Event;
+use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,6 +13,8 @@ use Inertia\Response;
 
 class ScheduleController extends Controller
 {
+    use FiltersEvents;
+
     // All hour calculations use this timezone so the frontend and server agree
     private const DISPLAY_TZ = 'Australia/Adelaide';
 
@@ -46,12 +50,23 @@ class ScheduleController extends Controller
             ? Carbon::parse($request->input('date'), self::DISPLAY_TZ)->startOfDay()
             : ($dateRange['start'] ?? Carbon::now(self::DISPLAY_TZ)->startOfDay());
 
-        // Get events for the selected date, scoped to the TDU year
-        $events = Event::with(['category', 'sponsor'])
+        // Get events for the selected date, scoped to the TDU year, with optional filters
+        $query = Event::with(['category', 'sponsor'])
             ->forTduYear($tduYear)
-            ->whereDate('start_datetime', $selectedDate)
-            ->orderBy('start_datetime')
-            ->get();
+            ->whereDate('start_datetime', $selectedDate);
+
+        $this->applyEventFilters($query, $request);
+
+        $events = $query->orderBy('start_datetime')->get();
+
+        // Sidebar filter data
+        $categories = Category::withCount('events')->orderBy('name')->get(['id', 'name', 'slug']);
+        $tags = Tag::withCount('events')->orderBy('name')->get(['id', 'name', 'slug']);
+        $currentFilters = $request->only([
+            'search', 'category', 'tags', 'min_distance', 'max_distance',
+            'min_elevation', 'max_elevation', 'rides_only', 'featured', 'free',
+            'recurring', 'womens', 'min_cost', 'max_cost',
+        ]);
 
         // Load all schedule categories keyed by slug
         $allCategories = Category::whereIn('slug', self::CATEGORY_ORDER)->get()->keyBy('slug');
@@ -128,6 +143,9 @@ class ScheduleController extends Controller
             'highlightEventId' => $request->integer('highlight') ?: null,
             'tduYear' => $tduYear,
             'availableYears' => Event::availableTduYears(),
+            'categories' => $categories,
+            'tags' => $tags,
+            'filters' => (object) $currentFilters,
         ]);
     }
 

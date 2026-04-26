@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\FiltersEvents;
+use App\Models\Category;
 use App\Models\Event;
+use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -10,6 +13,8 @@ use Inertia\Response;
 
 class MapController extends Controller
 {
+    use FiltersEvents;
+
     private const DISPLAY_TZ = 'Australia/Adelaide';
 
     public function index(Request $request): Response
@@ -20,12 +25,22 @@ class MapController extends Controller
             ? Carbon::parse($request->input('date'), self::DISPLAY_TZ)->startOfDay()
             : ($dateRange['start'] ?? Carbon::now(self::DISPLAY_TZ)->startOfDay());
 
-        $events = Event::with(['category', 'sponsor.media'])
+        $query = Event::with(['category', 'sponsor.media'])
             ->withDerivedRouteGeojson()
             ->whereDate('start_datetime', $selectedDate)
-            ->whereNotNull('location_lat')
-            ->orderBy('start_datetime')
-            ->get();
+            ->whereNotNull('location_lat');
+
+        $this->applyEventFilters($query, $request);
+
+        $events = $query->orderBy('start_datetime')->get();
+
+        $categories = Category::withCount('events')->orderBy('name')->get(['id', 'name', 'slug']);
+        $tags = Tag::withCount('events')->orderBy('name')->get(['id', 'name', 'slug']);
+        $currentFilters = $request->only([
+            'search', 'category', 'tags', 'min_distance', 'max_distance',
+            'min_elevation', 'max_elevation', 'rides_only', 'featured', 'free',
+            'recurring', 'womens', 'min_cost', 'max_cost',
+        ]);
 
         $availableDates = Event::selectRaw('DATE(start_datetime) as date')
             ->distinct()
@@ -75,6 +90,9 @@ class MapController extends Controller
             'markers' => $markers,
             'selectedDate' => $selectedDate->format('Y-m-d'),
             'availableDates' => $availableDates,
+            'categories' => $categories,
+            'tags' => $tags,
+            'filters' => (object) $currentFilters,
         ]);
     }
 

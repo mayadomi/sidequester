@@ -23,13 +23,18 @@ import { useAppearance } from '@/hooks/use-appearance';
 import { home, welcome } from '@/routes';
 import type { NavItem, SharedData } from '@/types';
 
-
-const publicNavItems: NavItem[] = [
-    { title: 'Events',        href: '/events',    icon: Calendar },
-    { title: 'Schedule',      href: '/schedule',  icon: CalendarClock },
-    { title: 'Map',           href: '/map',       icon: Map },
-    { title: 'My Favourites', href: '/favourites', icon: Heart },
-];
+function withFilters(base: string, filters: Record<string, string | string[]>): string {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+        if (Array.isArray(value)) {
+            value.forEach((v) => params.append(`${key}[]`, v));
+        } else if (value !== '' && value !== '0' && value !== 'false') {
+            params.set(key, value);
+        }
+    }
+    const qs = params.toString();
+    return qs ? `${base}?${qs}` : base;
+}
 
 const editorNavItems: NavItem[] = [
     { title: 'My Events',        href: '/profile/events',   icon: NotebookPen },
@@ -50,10 +55,16 @@ const adminNavItems: NavItem[] = [
 const appearanceIcons = { light: Sun, dark: Moon, system: Monitor } as const;
 
 export function AppSidebar() {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, activeFilters } = usePage<SharedData>().props;
     const role = auth?.user?.role;
 
     const homeHref = auth?.user ? welcome() : home();
+    const publicNavItems: NavItem[] = [
+        { title: 'Events',        href: withFilters('/events', activeFilters),   icon: Calendar },
+        { title: 'Schedule',      href: withFilters('/schedule', activeFilters), icon: CalendarClock },
+        { title: 'Map',           href: withFilters('/map', activeFilters),      icon: Map },
+        { title: 'My Favourites', href: '/favourites',                           icon: Heart },
+    ];
     const mainNavItems: NavItem[] = [
         { title: 'Home', href: homeHref, icon: LayoutGrid },
         ...publicNavItems,

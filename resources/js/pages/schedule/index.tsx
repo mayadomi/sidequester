@@ -1,13 +1,22 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { Calendar, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
-import { ScheduleSearch } from '@/components/schedule/schedule-search';
+import { EventFilters } from '@/components/events';
 import { TimelineGrid } from '@/components/schedule/timeline-grid';
 import { Button } from '@/components/ui/button';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import type { BreadcrumbItem, SharedData } from '@/types';
+import type { Category, EventFilters as Filters, Tag } from '@/types/events';
 import type { ScheduleCategory, TimelineBounds } from '@/types/schedule';
 
 interface ScheduleIndexProps {
@@ -17,6 +26,9 @@ interface ScheduleIndexProps {
     timelineBounds: TimelineBounds;
     tduYear: number;
     availableYears: number[];
+    categories: Category[];
+    tags: Tag[];
+    filters: Filters;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -46,9 +58,17 @@ export default function ScheduleIndex({
     timelineBounds,
     tduYear,
     availableYears,
+    categories,
+    tags,
+    filters,
 }: ScheduleIndexProps) {
     const { name, festivalName } = usePage<SharedData>().props;
+    const [filtersOpen, setFiltersOpen] = useState(false);
     const totalEvents = timelineData.reduce((sum, cat) => sum + cat.events.length, 0);
+
+    const activeFilterCount = Object.values(filters).filter(
+        v => v !== undefined && v !== '' && v !== false,
+    ).length;
     const currentDateIndex = availableDates.indexOf(selectedDate);
     const hasPrevDate = currentDateIndex > 0;
     const hasNextDate = currentDateIndex < availableDates.length - 1;
@@ -139,13 +159,40 @@ export default function ScheduleIndex({
                         </div>
                     )}
 
-                    {/* Search */}
-                    <div className="mt-2 sm:mt-3">
-                        <ScheduleSearch selectedDate={selectedDate} />
-                    </div>
-
                     {/* Date navigation */}
                     <div className="mt-2 flex items-center gap-1 sm:mt-3 sm:gap-2">
+                        <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="icon" className="relative size-8 shrink-0 text-white hover:bg-white/20 sm:size-10" aria-label="Filters">
+                                    <Filter className="size-4 sm:size-5" />
+                                    {activeFilterCount > 0 && (
+                                        <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-[#ff7405] ring-2 ring-[#071e3d]" />
+                                    )}
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left" className="w-full overflow-y-auto sm:max-w-md">
+                                <SheetHeader>
+                                    <SheetTitle>Filters</SheetTitle>
+                                    <SheetDescription>Narrow down the events you want to see.</SheetDescription>
+                                </SheetHeader>
+                                <div className="px-4 pb-4">
+                                    <EventFilters
+                                        categories={categories}
+                                        tags={tags}
+                                        currentFilters={filters}
+                                        tduYear={tduYear}
+                                        availableYears={availableYears}
+                                        route="/schedule"
+                                        extraParams={{ date: selectedDate }}
+                                        hideDateRange
+                                        hideSort
+                                        onApply={() => setFiltersOpen(false)}
+                                        bare
+                                    />
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+
                         <Button
                             variant="ghost"
                             size="icon"
