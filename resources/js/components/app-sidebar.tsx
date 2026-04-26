@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Building2, Calendar, CalendarClock, ClockAlert, Folder, Heart, LayoutGrid, Map, Monitor, Moon, NotebookPen, Plus, Settings, Shield, Sun, Users } from 'lucide-react';
+import { Building2, Calendar, CalendarClock, ClockAlert, Heart, LayoutGrid, Map, Monitor, Moon, NotebookPen, Plus, Settings, Shield, Sun, Users } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -20,11 +20,9 @@ import {
     SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { useAppearance } from '@/hooks/use-appearance';
-import { toUrl } from '@/lib/utils';
 import { home, welcome } from '@/routes';
 import type { NavItem, SharedData } from '@/types';
 
-import AppLogo from './app-logo';
 
 const publicNavItems: NavItem[] = [
     { title: 'Events',        href: '/events',    icon: Calendar },
@@ -47,10 +45,6 @@ const adminNavItems: NavItem[] = [
     { title: 'Event Hosts',     href: '/event-hosts',           icon: Settings },
     { title: 'Users',           href: '/admin/users',           icon: Users },
     { title: 'Event Host Claims', href: '/admin/event-host-claims', icon: Building2 },
-];
-
-const footerNavItems: NavItem[] = [
-    { title: 'Repository', href: 'https://github.com/laravel/react-starter-kit', icon: Folder },
 ];
 
 const appearanceIcons = { light: Sun, dark: Moon, system: Monitor } as const;
@@ -79,7 +73,8 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <Link href={homeHref} prefetch>
-                                <AppLogo />
+                                <img src="/favicon.svg" alt="" className="size-8 shrink-0" />
+                                <img src="/sidequester_navheader.svg" alt="Side Quester" className="h-7 w-auto" />
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -148,22 +143,6 @@ export function AppSidebar() {
 
             <SidebarFooter>
                 <SidebarMenu>
-                    {/* Footer links (e.g. Repository) */}
-                    {footerNavItems.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton
-                                asChild
-                                tooltip={item.title}
-                                className="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
-                            >
-                                <a href={toUrl(item.href)} target="_blank" rel="noopener noreferrer">
-                                    {item.icon && <item.icon className="size-4" />}
-                                    <span>{item.title}</span>
-                                </a>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    ))}
-
                     {/* Appearance toggle */}
                     <SidebarMenuItem>
                         <DropdownMenu>

@@ -33,7 +33,7 @@ Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.in
 Route::get('/map', [MapController::class, 'index'])->name('map.index');
 
 // Public API routes
-Route::prefix('api')->group(function () {
+Route::prefix('api')->middleware('throttle:60,1')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/categories/{category:slug}', [CategoryController::class, 'show']);
     Route::get('/categories/{category:slug}/events', [CategoryController::class, 'events']);

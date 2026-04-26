@@ -27,19 +27,19 @@ const EMPTY_ROW_H = 36;
 // Typed as Record<CategorySlug, CategoryColor> so TypeScript errors if a slug
 // is added to the union but its colour entry is missing.
 const CATEGORY_COLORS: Record<CategorySlug, CategoryColor> = {
-    'race-stages':     { bg: 'bg-blue-600',   border: 'border-blue-700',   text: 'text-white' },
-    'official-events': { bg: 'bg-violet-600', border: 'border-violet-700', text: 'text-white' },
-    'watch-parties':   { bg: 'bg-sky-500',    border: 'border-sky-600',    text: 'text-white' },
-    'group-rides':     { bg: 'bg-orange-400', border: 'border-orange-500', text: 'text-white' },
-    'local-racing':    { bg: 'bg-purple-500', border: 'border-purple-600', text: 'text-white' },
-    'pop-up':          { bg: 'bg-rose-400',   border: 'border-rose-500',   text: 'text-white' },
-    'expo':            { bg: 'bg-teal-500',   border: 'border-teal-600',   text: 'text-white' },
-    'pop-ups':         { bg: 'bg-cyan-500',   border: 'border-cyan-600',   text: 'text-white' },
-    'team-meets':      { bg: 'bg-indigo-500', border: 'border-indigo-600', text: 'text-white' },
-    'food-wine':       { bg: 'bg-amber-500',  border: 'border-amber-600',  text: 'text-white' },
-    'entertainment':   { bg: 'bg-pink-500',   border: 'border-pink-600',   text: 'text-white' },
-    'podcast':         { bg: 'bg-lime-600',   border: 'border-lime-700',   text: 'text-white' },
-    'other':           { bg: 'bg-gray-500',   border: 'border-gray-600',   text: 'text-white' },
+    'race-stages':     { bg: 'bg-[#0a72bf]', lightBg: 'bg-[#0a72bf]/15', border: 'border-[#085fa0]', text: 'text-white' },
+    'official-events': { bg: 'bg-[#0a3d7a]', lightBg: 'bg-[#0a3d7a]/15', border: 'border-[#082f62]', text: 'text-white' },
+    'watch-parties':   { bg: 'bg-[#2e8fd4]', lightBg: 'bg-[#2e8fd4]/15', border: 'border-[#2478b0]', text: 'text-white' },
+    'group-rides':     { bg: 'bg-[#ff7405]', lightBg: 'bg-[#ff7405]/15', border: 'border-[#e06203]', text: 'text-white' },
+    'local-racing':    { bg: 'bg-[#c84a00]', lightBg: 'bg-[#c84a00]/15', border: 'border-[#a83c00]', text: 'text-white' },
+    'pop-up':          { bg: 'bg-[#d4920a]', lightBg: 'bg-[#d4920a]/15', border: 'border-[#b87c08]', text: 'text-white' },
+    'expo':            { bg: 'bg-[#0ab0a6]', lightBg: 'bg-[#0ab0a6]/15', border: 'border-[#08938a]', text: 'text-white' },
+    'pop-ups':         { bg: 'bg-[#d4920a]', lightBg: 'bg-[#d4920a]/15', border: 'border-[#b87c08]', text: 'text-white' },
+    'team-meets':      { bg: 'bg-[#3850b0]', lightBg: 'bg-[#3850b0]/15', border: 'border-[#2c4298]', text: 'text-white' },
+    'food-wine':       { bg: 'bg-[#b87035]', lightBg: 'bg-[#b87035]/15', border: 'border-[#9a5c2a]', text: 'text-white' },
+    'entertainment':   { bg: 'bg-[#8845b5]', lightBg: 'bg-[#8845b5]/15', border: 'border-[#703898]', text: 'text-white' },
+    'podcast':         { bg: 'bg-[#507890]', lightBg: 'bg-[#507890]/15', border: 'border-[#406070]', text: 'text-white' },
+    'other':           { bg: 'bg-[#4a5c70]', lightBg: 'bg-[#4a5c70]/15', border: 'border-[#3a4c5e]', text: 'text-white' },
 };
 
 function getCategoryColor(slug: string): CategoryColor {
@@ -209,7 +209,7 @@ export function TimelineGrid({
                             <div
                                 className={cn(
                                     'relative overflow-hidden',
-                                    isEmpty && 'bg-muted/10',
+                                    isEmpty ? 'bg-muted/20' : 'bg-slate-50 dark:bg-transparent',
                                 )}
                                 style={{ width: eventsWidth, height: rowHeight }}
                             >
@@ -218,7 +218,7 @@ export function TimelineGrid({
                                     {hours.map((hour) => (
                                         <div
                                             key={hour}
-                                            className="shrink-0 border-r border-dashed border-muted-foreground/20"
+                                            className="shrink-0 border-r border-dashed border-muted-foreground/30"
                                             style={{ width: HOUR_WIDTH }}
                                         />
                                     ))}
@@ -242,6 +242,7 @@ export function TimelineGrid({
                                         top={event.lane * LANE_H + LANE_PAD}
                                         cardHeight={CARD_H}
                                         colors={colors}
+                                        fromPath={`/schedule?date=${selectedDate}`}
                                     />
                                 ))}
                             </div>

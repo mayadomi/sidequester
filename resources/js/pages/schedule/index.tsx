@@ -48,6 +48,7 @@ export default function ScheduleIndex({
     availableYears,
 }: ScheduleIndexProps) {
     const { name, festivalName } = usePage<SharedData>().props;
+    const totalEvents = timelineData.reduce((sum, cat) => sum + cat.events.length, 0);
     const currentDateIndex = availableDates.indexOf(selectedDate);
     const hasPrevDate = currentDateIndex > 0;
     const hasNextDate = currentDateIndex < availableDates.length - 1;
@@ -101,7 +102,23 @@ export default function ScheduleIndex({
 
             <div className="flex min-h-0 flex-1 flex-col">
                 {/* Header */}
-                <div className="shrink-0 border-b bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-3 text-white sm:px-4 sm:py-4">
+                <div className="shrink-0 border-b bg-gradient-to-br from-[#071e3d] via-[#0d2a50] to-[#0a1a38] px-3 py-3 text-white sm:px-4 sm:py-4">
+
+                    {/* Title row */}
+                    <div className="mb-2 flex items-center justify-between gap-3 sm:mb-3">
+                        <div className="flex items-center gap-2.5">
+                            <img src="/sidequester_bicycle.svg" alt="" aria-hidden="true" className="h-8 w-auto shrink-0 sm:h-9" />
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-widest text-white/50">Day Schedule</p>
+                                <p className="text-sm text-white/80">Plan your {festivalName} race week</p>
+                            </div>
+                        </div>
+                        {totalEvents > 0 && (
+                            <span className="shrink-0 rounded-full bg-[#ff7405]/80 px-2.5 py-1 text-xs font-semibold text-white">
+                                {totalEvents} event{totalEvents !== 1 ? 's' : ''} today
+                            </span>
+                        )}
+                    </div>
 
                     {/* TDU year switcher */}
                     {availableYears.length > 1 && (
@@ -149,7 +166,7 @@ export default function ScheduleIndex({
                                         className={cn(
                                             'shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all sm:px-4 sm:py-2 sm:text-sm',
                                             date === selectedDate
-                                                ? 'bg-white text-orange-600 shadow-md'
+                                                ? 'bg-[#ff7405] text-white shadow-md'
                                                 : 'text-white/90 hover:bg-white/20',
                                         )}
                                     >

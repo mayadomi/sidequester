@@ -46,7 +46,7 @@ class UserController extends Controller
             return back()->withErrors(['role' => 'You cannot change your own admin role.']);
         }
 
-        $user->update(['role' => $request->input('role')]);
+        $user->forceFill(['role' => $request->input('role')])->save();
 
         return back()->with('success', "Role updated to {$request->input('role')} for {$user->name}.");
     }

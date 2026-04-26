@@ -53,19 +53,19 @@ const MAP_STYLE_DARK  = `https://api.maptiler.com/maps/019d3df5-9af4-73ae-a327-7
 const DEFAULT_VIEW = { longitude: 138.5999, latitude: -34.9281, zoom: 11 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-    'race-stages':     'bg-blue-600',
-    'official-events': 'bg-violet-600',
-    'watch-parties':   'bg-sky-500',
-    'group-rides':     'bg-orange-500',
-    'local-racing':    'bg-purple-500',
-    'pop-up':          'bg-rose-400',
-    'expo':            'bg-teal-500',
-    'pop-ups':         'bg-cyan-500',
-    'team-meets':      'bg-indigo-500',
-    'food-wine':       'bg-amber-500',
-    'entertainment':   'bg-pink-500',
-    'podcast':         'bg-lime-600',
-    'other':           'bg-gray-500',
+    'race-stages':     'bg-[#0a72bf]',
+    'official-events': 'bg-[#0a3d7a]',
+    'watch-parties':   'bg-[#2e8fd4]',
+    'group-rides':     'bg-[#ff7405]',
+    'local-racing':    'bg-[#c84a00]',
+    'pop-up':          'bg-[#d4920a]',
+    'expo':            'bg-[#0ab0a6]',
+    'pop-ups':         'bg-[#d4920a]',
+    'team-meets':      'bg-[#3850b0]',
+    'food-wine':       'bg-[#b87035]',
+    'entertainment':   'bg-[#8845b5]',
+    'podcast':         'bg-[#507890]',
+    'other':           'bg-[#4a5c70]',
 };
 
 function getCategoryColor(slug: string): string {
@@ -74,19 +74,19 @@ function getCategoryColor(slug: string): string {
 
 // Hex colours for MapLibre line layers (mirrors CATEGORY_COLORS above)
 const CATEGORY_LINE_COLORS: Record<string, string> = {
-    'race-stages':     '#2563eb',
-    'official-events': '#7c3aed',
-    'watch-parties':   '#0ea5e9',
-    'group-rides':     '#f97316',
-    'local-racing':    '#a855f7',
-    'pop-up':          '#fb7185',
-    'expo':            '#14b8a6',
-    'pop-ups':         '#06b6d4',
-    'team-meets':      '#6366f1',
-    'food-wine':       '#f59e0b',
-    'entertainment':   '#ec4899',
-    'podcast':         '#65a30d',
-    'other':           '#6b7280',
+    'race-stages':     '#0a72bf',
+    'official-events': '#0a3d7a',
+    'watch-parties':   '#2e8fd4',
+    'group-rides':     '#ff7405',
+    'local-racing':    '#c84a00',
+    'pop-up':          '#d4920a',
+    'expo':            '#0ab0a6',
+    'pop-ups':         '#d4920a',
+    'team-meets':      '#3850b0',
+    'food-wine':       '#b87035',
+    'entertainment':   '#8845b5',
+    'podcast':         '#507890',
+    'other':           '#4a5c70',
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -304,8 +304,24 @@ export default function MapIndex({ markers, selectedDate, availableDates }: MapI
             <Head title={`Map | ${name}`} />
 
             <div className="flex min-h-0 flex-1 flex-col">
-                {/* Header — matches schedule page style */}
-                <div className="shrink-0 border-b bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-3 text-white sm:px-4 sm:py-4">
+                {/* Header */}
+                <div className="shrink-0 border-b bg-gradient-to-br from-[#071e3d] via-[#0d2a50] to-[#0a1a38] px-3 py-3 text-white sm:px-4 sm:py-4">
+
+                    {/* Title row */}
+                    <div className="mb-2 flex items-center justify-between gap-3 sm:mb-3">
+                        <div className="flex items-center gap-2.5">
+                            <img src="/sidequester_bicycle.svg" alt="" aria-hidden="true" className="h-8 w-auto shrink-0 sm:h-9" />
+                            <div>
+                                <p className="text-base font-bold sm:text-lg">Route Map</p>
+                                <p className="text-xs text-white/60 sm:text-sm">Tap a pin or route to explore events</p>
+                            </div>
+                        </div>
+                        {markers.length > 0 && (
+                            <span className="shrink-0 rounded-full bg-[#0a72bf]/70 px-2.5 py-1 text-xs font-semibold text-white">
+                                {markers.length} location{markers.length !== 1 ? 's' : ''}
+                            </span>
+                        )}
+                    </div>
 
                     {/* Date navigation */}
                     <div className="mt-2 flex items-center gap-1 sm:mt-3 sm:gap-2">
@@ -329,7 +345,7 @@ export default function MapIndex({ markers, selectedDate, availableDates }: MapI
                                         className={cn(
                                             'shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all sm:px-4 sm:py-2 sm:text-sm',
                                             date === selectedDate
-                                                ? 'bg-white text-orange-600 shadow-md'
+                                                ? 'bg-[#ff7405] text-white shadow-md'
                                                 : 'text-white/90 hover:bg-white/20',
                                         )}
                                     >
@@ -472,6 +488,7 @@ export default function MapIndex({ markers, selectedDate, availableDates }: MapI
                                         events={selectedMarker.events}
                                         onClose={closeMarkerPopup}
                                         onEventHover={setHoveredEventId}
+                                        fromPath={`/map?date=${selectedDate}`}
                                     />
                                 </Popup>
                             )}
@@ -503,6 +520,7 @@ export default function MapIndex({ markers, selectedDate, availableDates }: MapI
                                         onClose={closeRoutePopup}
                                         onEventHover={setHoveredEventId}
                                         showHeader={selectedEvents.length > 1}
+                                        fromPath={`/map?date=${selectedDate}`}
                                     />
                                 </Popup>
                             )}
@@ -606,21 +624,8 @@ function MarkerPin({ marker, isSelected, isHovered }: { marker: MapMarker; isSel
             </div>
             {/* Pointer triangle */}
             <div
-                className={cn('size-0 border-x-4 border-t-8 border-x-transparent', {
-                    'border-t-blue-600':   primarySlug === 'race-stages',
-                    'border-t-violet-600': primarySlug === 'official-events',
-                    'border-t-sky-500':    primarySlug === 'watch-parties',
-                    'border-t-orange-500': primarySlug === 'group-rides',
-                    'border-t-purple-500': primarySlug === 'local-racing',
-                    'border-t-rose-400':   primarySlug === 'pop-up',
-                    'border-t-teal-500':   primarySlug === 'expo',
-                    'border-t-cyan-500':   primarySlug === 'pop-ups',
-                    'border-t-indigo-500': primarySlug === 'team-meets',
-                    'border-t-amber-500':  primarySlug === 'food-wine',
-                    'border-t-pink-500':   primarySlug === 'entertainment',
-                    'border-t-lime-600':   primarySlug === 'podcast',
-                    'border-t-gray-500':   !CATEGORY_COLORS[primarySlug],
-                })}
+                className="size-0 border-x-4 border-t-8 border-x-transparent"
+                style={{ borderTopColor: CATEGORY_LINE_COLORS[primarySlug] ?? CATEGORY_LINE_COLORS['other'] }}
             />
         </div>
     );
@@ -635,6 +640,7 @@ function MapPopup({
     onClose,
     onEventHover,
     showHeader = true,
+    fromPath,
 }: {
     title: string;
     subtitle: string;
@@ -642,6 +648,7 @@ function MapPopup({
     onClose: () => void;
     onEventHover: (id: number | null) => void;
     showHeader?: boolean;
+    fromPath: string;
 }) {
     return (
         <div className="relative flex max-h-80 w-full flex-col overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/8 dark:bg-zinc-900 dark:ring-white/10">
@@ -669,6 +676,7 @@ function MapPopup({
                         event={event}
                         onEventHover={onEventHover}
                         onClose={!showHeader && i === 0 ? onClose : undefined}
+                        fromPath={fromPath}
                     />
                 ))}
             </div>
@@ -682,10 +690,12 @@ function EventCard({
     event,
     onEventHover,
     onClose,
+    fromPath,
 }: {
     event: MapEvent;
     onEventHover?: (id: number | null) => void;
     onClose?: () => void;
+    fromPath: string;
 }) {
     const hexColor = CATEGORY_LINE_COLORS[event.category_slug] ?? CATEGORY_LINE_COLORS['other'];
 
@@ -716,7 +726,7 @@ function EventCard({
             {/* Centre: content */}
             <div className="min-w-0 flex-1 py-2.5 pr-2.5">
                 <Link
-                    href={`/events/${event.id}`}
+                    href={`/events/${event.id}?from=${encodeURIComponent(fromPath)}`}
                     className="block text-sm font-medium leading-snug hover:underline"
                 >
                     {event.title}

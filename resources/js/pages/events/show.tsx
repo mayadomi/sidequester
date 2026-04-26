@@ -30,8 +30,19 @@ export default function EventShow({ event, can_edit }: EventShowProps) {
     const page = usePage<SharedData>();
     const { name } = page.props;
 
+    const searchParams = new URLSearchParams(page.url.includes('?') ? page.url.split('?')[1] : '');
+    const from = searchParams.get('from');
+    const isFromSchedule = from?.startsWith('/schedule');
+    const isFromMap = from?.startsWith('/map');
+    const backHref = from ?? '/events';
+    const backLabel = isFromSchedule ? 'Back to Schedule' : isFromMap ? 'Back to Map' : 'Back to Events';
+
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Events', href: '/events' },
+        isFromSchedule
+            ? { title: 'Schedule', href: from! }
+            : isFromMap
+              ? { title: 'Map', href: from! }
+              : { title: 'Events', href: '/events' },
         { title: event.title, href: `/events/${event.id}` },
     ];
 
@@ -54,9 +65,9 @@ export default function EventShow({ event, can_edit }: EventShowProps) {
             <div className="mx-auto max-w-4xl p-4 lg:p-6">
                 {/* Back Button */}
                 <Button variant="ghost" size="sm" className="mb-4" asChild>
-                    <Link href="/events">
+                    <Link href={backHref}>
                         <ArrowLeft className="mr-2 size-4" />
-                        Back to Events
+                        {backLabel}
                     </Link>
                 </Button>
 
@@ -72,7 +83,7 @@ export default function EventShow({ event, can_edit }: EventShowProps) {
                                 </Badge>
                             )}
                             {event.is_featured && (
-                                <Badge className="bg-amber-500 text-white">Featured</Badge>
+                                <Badge className="bg-[#d4920a] text-white">Featured</Badge>
                             )}
                             {event.category && (
                                 <Badge variant="secondary">{event.category.name}</Badge>

@@ -108,23 +108,28 @@ export default function FavouritesIndex({ events, markers }: FavouritesIndexProp
 
             <div className="flex min-h-0 flex-1 flex-col">
                 {/* Header */}
-                <div className="shrink-0 border-b px-4 py-4 sm:px-6">
+                <div className="shrink-0 border-b bg-gradient-to-br from-[#071e3d] via-[#0d2a50] to-[#0a1a38] px-3 py-4 text-white sm:px-4 sm:py-5">
                     <div className="flex items-center justify-between gap-4">
-                        <div>
-                            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">My Favourites</h1>
-                            <p className="mt-0.5 text-sm text-muted-foreground">
-                                {events.length} saved event{events.length !== 1 ? 's' : ''}
-                            </p>
+                        <div className="flex items-center gap-3">
+                            <img src="/sidequester_bicycle.svg" alt="" aria-hidden="true" className="h-10 w-auto shrink-0 sm:h-12" />
+                            <div>
+                                <h1 className="text-xl font-bold tracking-tight sm:text-2xl">My Favourites</h1>
+                                <p className="mt-0.5 text-sm text-white/70">
+                                    {events.length > 0
+                                        ? `${events.length} saved event${events.length !== 1 ? 's' : ''} · your personal itinerary`
+                                        : 'Save events to build your personal itinerary'}
+                                </p>
+                            </div>
                         </div>
                         {events.length > 0 && (
-                            <div className="flex rounded-lg border p-1">
+                            <div className="flex rounded-lg border border-white/20 p-1">
                                 <button
                                     onClick={() => setView('list')}
                                     className={cn(
                                         'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                                         view === 'list'
-                                            ? 'bg-primary text-primary-foreground shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground',
+                                            ? 'bg-white/20 text-white ring-1 ring-white/40'
+                                            : 'text-white/70 hover:bg-white/10 hover:text-white',
                                     )}
                                 >
                                     <List className="size-4" />
@@ -135,8 +140,8 @@ export default function FavouritesIndex({ events, markers }: FavouritesIndexProp
                                     className={cn(
                                         'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                                         view === 'map'
-                                            ? 'bg-primary text-primary-foreground shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground',
+                                            ? 'bg-white/20 text-white ring-1 ring-white/40'
+                                            : 'text-white/70 hover:bg-white/10 hover:text-white',
                                     )}
                                 >
                                     <MapIcon className="size-4" />

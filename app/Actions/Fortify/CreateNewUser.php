@@ -26,11 +26,15 @@ class CreateNewUser implements CreatesNewUsers
 
         $role = ($input['intent'] ?? null) === 'creator' ? 'editor_pending' : 'viewer';
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
-            'role' => $role,
         ]);
+
+        $user->role = $role;
+        $user->save();
+
+        return $user;
     }
 }

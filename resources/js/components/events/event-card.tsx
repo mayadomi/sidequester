@@ -24,6 +24,26 @@ import type { Event } from '@/types/events';
 
 import { FavouriteButton } from './favourite-button';
 
+const CATEGORY_BADGE_COLORS: Record<string, string> = {
+    'race-stages':     'bg-[#0a72bf]/10 text-[#0a72bf] dark:bg-[#0a72bf]/20 dark:text-[#4da6f5]',
+    'official-events': 'bg-[#0a3d7a]/10 text-[#0a3d7a] dark:bg-[#0a3d7a]/20 dark:text-[#6090d0]',
+    'watch-parties':   'bg-[#2e8fd4]/10 text-[#2e8fd4] dark:bg-[#2e8fd4]/20 dark:text-[#2e8fd4]',
+    'group-rides':     'bg-[#ff7405]/10 text-[#ff7405] dark:bg-[#ff7405]/20 dark:text-[#ff9040]',
+    'local-racing':    'bg-[#c84a00]/10 text-[#c84a00] dark:bg-[#c84a00]/20 dark:text-[#e86020]',
+    'pop-up':          'bg-[#d4920a]/10 text-[#d4920a] dark:bg-[#d4920a]/20 dark:text-[#f0b030]',
+    'expo':            'bg-[#0ab0a6]/10 text-[#0ab0a6] dark:bg-[#0ab0a6]/20 dark:text-[#0ab0a6]',
+    'pop-ups':         'bg-[#d4920a]/10 text-[#d4920a] dark:bg-[#d4920a]/20 dark:text-[#f0b030]',
+    'team-meets':      'bg-[#3850b0]/10 text-[#3850b0] dark:bg-[#3850b0]/20 dark:text-[#7090d8]',
+    'food-wine':       'bg-[#b87035]/10 text-[#b87035] dark:bg-[#b87035]/20 dark:text-[#d89050]',
+    'entertainment':   'bg-[#8845b5]/10 text-[#8845b5] dark:bg-[#8845b5]/20 dark:text-[#b070d8]',
+    'podcast':         'bg-[#507890]/10 text-[#507890] dark:bg-[#507890]/20 dark:text-[#7098b0]',
+    'other':           'bg-[#4a5c70]/10 text-[#4a5c70] dark:bg-[#4a5c70]/20 dark:text-[#8098b0]',
+};
+
+function getCategoryBadgeColor(slug: string): string {
+    return CATEGORY_BADGE_COLORS[slug] ?? CATEGORY_BADGE_COLORS['other'];
+}
+
 interface EventCardProps {
     event: Event;
     showFavouriteButton?: boolean;
@@ -50,7 +70,7 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
         <Card
             className={cn(
                 'group relative flex h-full flex-col overflow-hidden transition-all hover:shadow-lg',
-                event.is_featured && 'ring-2 ring-amber-500/50',
+                event.is_featured && 'ring-2 ring-[#d4920a]/40',
                 className,
             )}
         >
@@ -113,13 +133,13 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                         </Badge>
                     )}
                     {event.is_featured && (
-                        <Badge className="bg-amber-500 text-white shadow-md hover:bg-amber-600">
+                        <Badge className="bg-[#d4920a] text-white shadow-md hover:bg-[#b87c08]">
                             <Sparkles className="mr-1 size-3" />
                             Featured
                         </Badge>
                     )}
                     {event.is_recurring && (
-                        <Badge className="bg-purple-500 text-white shadow-md hover:bg-purple-600">
+                        <Badge className="bg-[#8845b5] text-white shadow-md hover:bg-[#703898]">
                             <Repeat className="mr-1 size-3" />
                             Recurring
                         </Badge>
@@ -148,7 +168,7 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                         )}
                         <div className="mt-2 flex flex-wrap gap-1.5">
                             {event.category && (
-                                <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50">
+                                <Badge className={cn(getCategoryBadgeColor(event.category.slug), 'hover:opacity-90')}>
                                     {event.category.name}
                                 </Badge>
                             )}
@@ -197,30 +217,18 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                 )}
 
                 {/* Ride Stats */}
-                {event.is_ride && (
-                    <div className="flex items-center gap-4 text-sm">
+                {(event.is_ride || event.route_url) && (
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                         {event.ride_distance_km && (
-                            <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                            <div className="flex items-center gap-1.5 text-[#0a72bf] dark:text-[#4da6f5]">
                                 <Route className="size-4" />
                                 <span className="font-medium">{event.ride_distance_km} km</span>
                             </div>
                         )}
                         {event.elevation_gain_m && (
-                            <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400">
+                            <div className="flex items-center gap-1.5 text-[#ff7405] dark:text-[#ff9040]">
                                 <Mountain className="size-4" />
                                 <span className="font-medium">{event.elevation_gain_m} m</span>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Pace & route URL */}
-                {(event.pace || event.route_url) && (
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                        {event.pace && (
-                            <div className="flex items-center gap-1.5 text-sm text-violet-600 dark:text-violet-400">
-                                <Gauge className="size-4 shrink-0" />
-                                <span className="font-medium">{event.pace}</span>
                             </div>
                         )}
                         {event.route_url && (
@@ -228,12 +236,20 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                                 href={event.route_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 text-sm text-blue-600 hover:underline dark:text-blue-400"
+                                className="flex items-center gap-1.5 text-[#0a72bf] hover:underline dark:text-[#4da6f5]"
                             >
                                 <MapPin className="size-4 shrink-0" />
                                 <span>View route</span>
                             </a>
                         )}
+                    </div>
+                )}
+
+                {/* Pace */}
+                {event.pace && (
+                    <div className="flex items-center gap-1.5 text-sm text-[#3850b0] dark:text-[#7090d8]">
+                        <Gauge className="size-4 shrink-0" />
+                        <span className="font-medium">{event.pace}</span>
                     </div>
                 )}
 

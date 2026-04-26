@@ -37,7 +37,6 @@ class UpdateEventRequest extends FormRequest
                     }
                 },
             ],
-            'location_id' => ['nullable', 'integer', 'exists:locations,id'],
             'pace' => ['nullable', 'string', 'max:100'],
             'route_url' => ['nullable', 'url', 'max:500'],
             'url' => ['nullable', 'url', 'max:500'],

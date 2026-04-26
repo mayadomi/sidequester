@@ -18,6 +18,7 @@ interface TimelineEventProps {
     /** Card height in px */
     cardHeight: number;
     colors: CategoryColor;
+    fromPath: string;
 }
 
 // Format time for display.
@@ -34,6 +35,7 @@ export function TimelineEvent({
     top,
     cardHeight,
     colors,
+    fromPath,
 }: TimelineEventProps) {
     const left = (event.start_hour - startHour) * hourWidth;
     // Enforce a minimum width so very short events are still visible as a coloured sliver
@@ -48,14 +50,15 @@ export function TimelineEvent({
     const card = (
         <div
             className={cn(
-                'absolute rounded border-l-4 shadow-sm transition-shadow hover:z-10 hover:shadow-md',
+                'absolute rounded border-l-4 shadow transition-shadow hover:z-10 hover:shadow-md dark:shadow-sm',
                 colors.border,
-                'bg-white dark:bg-gray-800',
+                colors.lightBg,
+                'dark:bg-gray-800',
             )}
             style={{ left, width, top, height: cardHeight }}
         >
             <Link
-                href={`/events/${event.id}`}
+                href={`/events/${event.id}?from=${encodeURIComponent(fromPath)}`}
                 className="flex h-full flex-col justify-center overflow-hidden px-1.5 py-1"
             >
                 {showTitle && (

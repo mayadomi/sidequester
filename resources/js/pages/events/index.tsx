@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Calendar, ChevronLeft, ChevronRight, Filter, Sparkles, TrendingUp } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Filter, Heart, MapPin, Route, Sparkles, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
 import { EventCard, EventFilters, EventSearch } from '@/components/events';
@@ -81,46 +81,71 @@ export default function EventsIndex({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Events | ${name}`} />
 
-            <div className="flex flex-col gap-4 p-3 sm:gap-6 sm:p-4 lg:p-6">
-                {/* Header */}
-                <div className="flex flex-col gap-1 sm:gap-2">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
+            {/* Dark header */}
+            <div className="shrink-0 border-b bg-gradient-to-br from-[#071e3d] via-[#0d2a50] to-[#0a1a38] px-3 py-4 text-white sm:px-4 sm:py-5">
+                {/* Title row */}
+                <div className="mb-3 flex flex-wrap items-start justify-between gap-3 sm:mb-4">
+                    <div className="flex items-center gap-3">
+                        <img src="/sidequester_bicycle.svg" alt="" aria-hidden="true" className="h-10 w-auto shrink-0 sm:h-12" />
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Tour Down Under Events</h1>
-                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">
-                                Discover cycling events, community rides, and festival activities
+                            <p className="mt-0.5 text-sm text-white/70 sm:text-base">
+                                Your guide to the world's greatest cycling festival
                             </p>
                         </div>
-
-                        {/* TDU year switcher */}
-                        {availableYears.length > 1 && (
-                            <div className="flex items-center gap-1 rounded-lg border bg-muted/40 p-1">
-                                {availableYears.map((year) => (
-                                    <button
-                                        key={year}
-                                        onClick={() => switchYear(year)}
-                                        className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                                            year === tduYear
-                                                ? 'bg-background text-foreground shadow-sm'
-                                                : 'text-muted-foreground hover:text-foreground'
-                                        }`}
-                                    >
-                                        {festivalName} {year}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
                     </div>
+
+                    {/* TDU year switcher */}
+                    {availableYears.length > 1 && (
+                        <div className="flex items-center gap-1">
+                            {availableYears.map((year) => (
+                                <button
+                                    key={year}
+                                    onClick={() => switchYear(year)}
+                                    className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors sm:text-sm ${
+                                        year === tduYear
+                                            ? 'bg-white/20 text-white ring-1 ring-white/40'
+                                            : 'text-white/70 hover:bg-white/10 hover:text-white'
+                                    }`}
+                                >
+                                    {festivalName} {year}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Contextual guide hints */}
+                <div className="mb-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-white/55">
+                    <span className="flex items-center gap-1.5">
+                        <Filter className="size-3 shrink-0" />
+                        Filter by category, date, or distance
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                        <Heart className="size-3 shrink-0" />
+                        Save events to your favourites
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                        <MapPin className="size-3 shrink-0" />
+                        View routes on the map
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                        <Route className="size-3 shrink-0" />
+                        Explore group rides and race stages
+                    </span>
                 </div>
 
                 {/* Search */}
                 <EventSearch currentFilters={filters} tduYear={tduYear} availableYears={availableYears} />
+            </div>
+
+            <div className="flex flex-col gap-4 p-3 sm:gap-6 sm:p-4 lg:p-6">
 
                 {/* Featured Events (if available and no filters applied) */}
                 {featuredEvents && featuredEvents.length > 0 && Object.keys(filters).length === 0 && (
                     <section className="space-y-3 sm:space-y-4">
                         <div className="flex items-center gap-2">
-                            <Sparkles className="size-5 text-amber-500" />
+                            <Sparkles className="size-5 text-[#ff7405]" />
                             <h2 className="text-lg font-semibold sm:text-xl">Featured Events</h2>
                         </div>
                         <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">

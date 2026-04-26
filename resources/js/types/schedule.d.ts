@@ -17,6 +17,7 @@ export type CategorySlug =
 
 export interface CategoryColor {
     bg: string;
+    lightBg: string;
     border: string;
     text: string;
 }

@@ -142,6 +142,15 @@
     }
 }
 
+
+@keyframes jiggle {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    20%       { transform: rotate(-2.5deg) scale(1.02); }
+    40%       { transform: rotate(2.5deg) scale(1.02); }
+    60%       { transform: rotate(-1.5deg) scale(1.01); }
+    80%       { transform: rotate(1.5deg) scale(1.01); }
+}
+
 @layer utilities {
     .scrollbar-none {
         -ms-overflow-style: none;
@@ -149,5 +158,12 @@
     }
     .scrollbar-none::-webkit-scrollbar {
         display: none;
+    }
+    .hover-jiggle {
+        @media (min-width: 1024px) {
+            &:hover {
+                animation: jiggle 0.45s ease-in-out;
+            }
+        }
     }
 }
