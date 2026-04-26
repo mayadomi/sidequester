@@ -143,6 +143,64 @@
 }
 
 
+/* ── Site logo animations ───────────────────────────────────────────────── */
+
+@keyframes logo-float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-7px) scale(1.08); }
+}
+
+@keyframes logo-spin-slow {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes logo-spin-burst-left {
+    0%, 5%  { transform: rotate(0deg); }
+    35%     { transform: rotate(360deg); }
+    100%    { transform: rotate(360deg); }
+}
+
+@keyframes logo-spin-burst-right {
+    0%, 5%  { transform: rotate(0deg); }
+    38%     { transform: rotate(360deg); }
+    100%    { transform: rotate(360deg); }
+}
+
+@keyframes logo-feather-wiggle {
+    0%       { transform: rotate(0deg) translateX(0); }
+    1%       { transform: rotate(-5deg) translateX(-2px); }
+    2%       { transform: rotate(5deg) translateX(2px); }
+    3%       { transform: rotate(-5deg) translateX(-2px); }
+    4%       { transform: rotate(5deg) translateX(2px); }
+    5%, 100% { transform: rotate(0deg) translateX(0); }
+}
+
+.logo-float-1,
+.logo-float-2,
+.logo-float-3,
+.logo-float-4 {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: logo-float 3s ease-in-out infinite;
+}
+.logo-float-2 { animation-duration: 3.7s; animation-delay: -0.9s; }
+.logo-float-3 { animation-duration: 2.9s; animation-delay: -1.7s; }
+.logo-float-4 { animation-duration: 3.4s; animation-delay: -2.4s; }
+
+.logo-spin-left,
+.logo-spin-right {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+.logo-spin-left  { animation: logo-spin-burst-left 10s linear infinite; }
+.logo-spin-right { animation: logo-spin-burst-right 10s linear infinite; }
+
+.logo-feather-sway {
+    transform-box: fill-box;
+    transform-origin: 55% 10%;
+    animation: logo-feather-wiggle 10s ease-in-out infinite;
+}
+
 @keyframes jiggle {
     0%, 100% { transform: rotate(0deg) scale(1); }
     20%       { transform: rotate(-2.5deg) scale(1.02); }

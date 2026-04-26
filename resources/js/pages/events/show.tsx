@@ -4,6 +4,8 @@ import {
     Calendar,
     Clock,
     ExternalLink,
+    Gauge,
+    Map,
     MapPin,
     Mountain,
     Pencil,
@@ -109,7 +111,7 @@ export default function EventShow({ event, can_edit }: EventShowProps) {
                                 <CardTitle className="text-2xl lg:text-3xl">{event.title}</CardTitle>
                                 {event.sponsor && (
                                     <p className="mt-1 text-sm text-muted-foreground">
-                                        Sponsored by {event.sponsor.name}
+                                        Hosted by {event.sponsor.name}
                                     </p>
                                 )}
                             </div>
@@ -207,6 +209,30 @@ export default function EventShow({ event, can_edit }: EventShowProps) {
                                                 <p className="text-sm text-muted-foreground">Elevation Gain</p>
                                             </div>
                                         </div>
+                                    )}
+                                    {event.pace && (
+                                        <div className="flex items-center gap-3 rounded-lg border p-4">
+                                            <Gauge className="size-8 text-teal-500" />
+                                            <div>
+                                                <p className="text-2xl font-bold">{event.pace}</p>
+                                                <p className="text-sm text-muted-foreground">Pace</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {event.route_url && (
+                                        <a
+                                            href={event.route_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
+                                        >
+                                            <Map className="size-8 text-[#0a72bf]" />
+                                            <div>
+                                                <p className="text-2xl font-bold">Route</p>
+                                                <p className="text-sm text-muted-foreground">View map</p>
+                                            </div>
+                                            <ExternalLink className="ml-auto size-4 shrink-0 text-muted-foreground" />
+                                        </a>
                                     )}
                                 </div>
                             </>

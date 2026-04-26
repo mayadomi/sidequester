@@ -141,21 +141,6 @@ export default function EventsIndex({
 
             <div className="flex flex-col gap-4 p-3 sm:gap-6 sm:p-4 lg:p-6">
 
-                {/* Featured Events (if available and no filters applied) */}
-                {featuredEvents && featuredEvents.length > 0 && Object.keys(filters).length === 0 && (
-                    <section className="space-y-3 sm:space-y-4">
-                        <div className="flex items-center gap-2">
-                            <Sparkles className="size-5 text-[#ff7405]" />
-                            <h2 className="text-lg font-semibold sm:text-xl">Featured Events</h2>
-                        </div>
-                        <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
-                            {featuredEvents.slice(0, 3).map((event) => (
-                                <EventCard key={event.id} event={event} />
-                            ))}
-                        </div>
-                    </section>
-                )}
-
                 {/* Mobile Filter Button */}
                 <div className="lg:hidden">
                     <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
@@ -190,6 +175,45 @@ export default function EventsIndex({
                     </Sheet>
                 </div>
 
+                {/* Results Info — mobile only (desktop version lives inside <main>) */}
+                <div className="flex flex-wrap items-center justify-between gap-3 lg:hidden">
+                    <div className="flex items-center gap-2">
+                        <Calendar className="size-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                            {events.total} event{events.total !== 1 ? 's' : ''} found
+                        </span>
+                        {filters.sort && (
+                            <Badge variant="outline" className="ml-2">
+                                <TrendingUp className="mr-1 size-3" />
+                                {filters.sort} {filters.order === 'desc' ? '↓' : '↑'}
+                            </Badge>
+                        )}
+                    </div>
+                    <div className="flex gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href="/events/popular">Popular</Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href="/events/featured">Featured</Link>
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Featured Events (if available and no filters applied) */}
+                {featuredEvents && featuredEvents.length > 0 && Object.keys(filters).length === 0 && (
+                    <section className="space-y-3 sm:space-y-4">
+                        <div className="flex items-center gap-2">
+                            <Sparkles className="size-5 text-[#ff7405]" />
+                            <h2 className="text-lg font-semibold sm:text-xl">Featured Events</h2>
+                        </div>
+                        <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
+                            {featuredEvents.slice(0, 3).map((event) => (
+                                <EventCard key={event.id} event={event} />
+                            ))}
+                        </div>
+                    </section>
+                )}
+
                 {/* Main Content */}
                 <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
                     {/* Sidebar Filters - desktop only */}
@@ -205,8 +229,8 @@ export default function EventsIndex({
 
                     {/* Events Grid */}
                     <main className="space-y-4 sm:space-y-6">
-                        {/* Results Info */}
-                        <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+                        {/* Results Info — desktop only (mobile version lives above featured events) */}
+                        <div className="hidden flex-wrap items-center justify-between gap-3 sm:gap-4 lg:flex">
                             <div className="flex items-center gap-2">
                                 <Calendar className="size-4 text-muted-foreground sm:size-5" />
                                 <span className="text-sm text-muted-foreground">

@@ -10,7 +10,6 @@ import {
     Map,
     MapPin,
     Pencil,
-    Route,
     X,
 } from 'lucide-react';
 
@@ -34,7 +33,7 @@ export default function Welcome() {
             {isCreator ? (
                 <CreatorWelcome name={name} role={role as string} festivalName={festivalName} />
             ) : (
-                <ViewerWelcome name={name} appName={appName} festivalName={festivalName} />
+                <ViewerWelcome name={name} festivalName={festivalName} />
             )}
         </AppLayout>
     );
@@ -42,7 +41,7 @@ export default function Welcome() {
 
 // ─── Viewer welcome ───────────────────────────────────────────────────────────
 
-function ViewerWelcome({ name, appName, festivalName }: { name: string; appName: string; festivalName: string }) {
+function ViewerWelcome({ name, festivalName }: { name: string; festivalName: string }) {
     const features = [
         {
             icon: Calendar,

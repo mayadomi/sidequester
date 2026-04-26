@@ -19,6 +19,7 @@ import { useRef, useState } from 'react';
 
 import AppLogo from '@/components/app-logo';
 import { FavouriteButton } from '@/components/events/favourite-button';
+import SiteLogo from '@/components/site-logo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAppearance } from '@/hooks/use-appearance';
@@ -61,10 +62,10 @@ export default function Home({ upcomingEvents }: HomeProps) {
                 <main className="flex-1">
                     <HeroSection isLoggedIn={isLoggedIn} festivalName={festivalName} />
                     <UpcomingEventsSection events={upcomingEvents} isLoggedIn={isLoggedIn} />
-                    <FeaturesSection name={name} festivalName={festivalName} />
-                    {!isLoggedIn && <CreatorCtaSection name={name} festivalName={festivalName} contactEmail={contactEmail} />}
+                    <FeaturesSection festivalName={festivalName} />
+                    {!isLoggedIn && <CreatorCtaSection festivalName={festivalName} contactEmail={contactEmail} />}
                 </main>
-                <SiteFooter name={name} contactEmail={contactEmail} />
+                <SiteFooter contactEmail={contactEmail} />
             </div>
         </>
     );
@@ -136,7 +137,7 @@ function HeroSection({ isLoggedIn, festivalName }: { isLoggedIn: boolean; festiv
 
             <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
                 <div className="mb-8 flex justify-center">
-                    <img src="/logo.svg" alt={`${festivalName} SideQuester`} className="h-32 translate-x-2 sm:h-40 lg:h-48" />
+                    <SiteLogo className="h-32 translate-x-2 sm:h-40 lg:h-48" aria-label={`${festivalName} SideQuester`} />
                 </div>
 
                 <a
@@ -430,7 +431,7 @@ function EventCarouselCard({ event, isLoggedIn }: { event: Event; isLoggedIn: bo
 
 // ─── Features section ─────────────────────────────────────────────────────────
 
-function FeaturesSection({ name, festivalName }: { name: string; festivalName: string }) {
+function FeaturesSection({ festivalName }: { festivalName: string }) {
     const features = [
         {
             icon: Calendar,
@@ -496,7 +497,7 @@ function FeaturesSection({ name, festivalName }: { name: string; festivalName: s
 
 // ─── Creator CTA section ──────────────────────────────────────────────────────
 
-function CreatorCtaSection({ name, festivalName, contactEmail }: { name: string; festivalName: string; contactEmail: string }) {
+function CreatorCtaSection({ festivalName, contactEmail }: { festivalName: string; contactEmail: string }) {
     return (
         <section className="py-14 sm:py-20">
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -541,9 +542,6 @@ function CreatorCtaSection({ name, festivalName, contactEmail }: { name: string;
                                     <ArrowRight className="ml-2 size-4" />
                                 </Link>
                             </Button>
-                            <p className="text-center text-sm text-white/70 lg:text-right">
-                                Editor access is requested automatically at sign-up.
-                            </p>
                             <Button
                                 asChild
                                 size="sm"
@@ -565,7 +563,7 @@ function CreatorCtaSection({ name, festivalName, contactEmail }: { name: string;
 
 // ─── Site footer ──────────────────────────────────────────────────────────────
 
-function SiteFooter({ name, contactEmail }: { name: string; contactEmail: string }) {
+function SiteFooter({ contactEmail }: { contactEmail: string }) {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -632,7 +630,7 @@ function SiteFooter({ name, contactEmail }: { name: string; contactEmail: string
 
                 <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/40">
                     <p>
-                        &copy; {currentYear} TDU Side Quester. Not affiliated with Santos Tour Down Under or Events South Australia.
+                        &copy; {currentYear} TDU Sidequester. Not affiliated with Santos Tour Down Under or Events South Australia.
                     </p>
                 </div>
             </div>
