@@ -73,6 +73,7 @@ export function EventFilters({
         setIsLoading(true);
         router.get(route, params, {
             preserveState: true,
+            headers: { 'X-Filter-Applied': '1' },
             onFinish: () => setIsLoading(false),
         });
         onApply?.();

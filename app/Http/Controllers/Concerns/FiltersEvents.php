@@ -39,15 +39,16 @@ trait FiltersEvents
         }
 
         $keys = $this->persistentFilterKeys();
-        $hasActiveFilters = collect($keys)->some(fn ($k) => $request->has($k));
 
-        if ($hasActiveFilters) {
+        if ($request->hasHeader('X-Filter-Applied')) {
+            // Explicit filter interaction — persist whatever is currently active (may be empty).
             $active = array_filter(
                 $request->only($keys),
                 fn ($v) => $v !== null && $v !== '' && $v !== false && $v !== [] && $v !== '0',
             );
             session(['event_filters' => $active]);
         } else {
+            // Direct/bookmarked URL — restore any previously saved filters.
             $request->mergeIfMissing(session('event_filters', []));
         }
     }

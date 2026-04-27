@@ -2,7 +2,7 @@ services:
   db:
     # Multi-arch image (amd64 + arm64). Works on both Apple Silicon / Windows ARM dev machines and amd64 production servers.
     image: ghcr.io/baosystems/postgis:16-3.4
-    container_name: tdu-postgres
+    container_name: tdu-sidequester-postgres
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
@@ -14,3 +14,5 @@ services:
 
 volumes:
   tdu-pgdata:
+    external: true
+    name: sidequester_tdu-pgdata

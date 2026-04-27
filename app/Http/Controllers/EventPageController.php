@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\Event;
 use App\Models\Sponsor;
 use App\Models\Tag;
+use App\Rules\ValidGpxFile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -101,7 +102,7 @@ class EventPageController extends Controller
         $user = auth()->user();
 
         return Inertia::render('events/create', [
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::orderBy('name')->get(['id', 'name', 'slug']),
             'sponsors' => $user->isAdmin()
                 ? Sponsor::orderBy('name')->get(['id', 'name'])
                 : $user->verifiedSponsors()->orderBy('sponsors.name')->get(['sponsors.id', 'sponsors.name']),
@@ -115,7 +116,7 @@ class EventPageController extends Controller
     public function store(StoreEventRequest $request): RedirectResponse
     {
         $event = Event::create([
-            ...$request->safe()->except(['tag_ids', 'gpx', 'route_geojson']),
+            ...$request->safe()->except(['tag_ids', 'gpx', 'route_geojson', 'banner']),
             'created_by_user_id' => $request->user()->id,
         ]);
 
@@ -126,6 +127,10 @@ class EventPageController extends Controller
             $geojson = json_decode($request->input('route_geojson'), true);
             $event->addMediaFromRequest('gpx')->toMediaCollection('route_gpx');
             $event->syncRouteGeometry($geojson);
+        }
+
+        if ($request->hasFile('banner')) {
+            $event->addMediaFromRequest('banner')->toMediaCollection('banner');
         }
 
         return redirect()->route('events.show', $event)
@@ -225,7 +230,7 @@ class EventPageController extends Controller
     {
         $this->authorize('manageRoute', $event);
         $request->validate([
-            'gpx' => ['required', 'file', 'max:10240'],
+            'gpx' => ['required', 'file', 'max:10240', new ValidGpxFile],
             'route_geojson' => ['required', 'string'],
         ]);
 

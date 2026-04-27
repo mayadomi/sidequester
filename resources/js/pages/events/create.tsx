@@ -1,6 +1,6 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { gpx as gpxToGeoJson } from '@tmcw/togeojson';
-import { ArrowLeft, FileX2, Loader2, RouteIcon, Upload } from 'lucide-react';
+import { ArrowLeft, FileX2, ImageIcon, Loader2, RouteIcon, Trash2, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@ import type { BreadcrumbItem, SharedData } from '@/types';
 interface SimpleOption {
     id: number;
     name: string;
+    slug?: string;
 }
 
 interface EventCreateProps {
@@ -57,12 +58,33 @@ type FormData = {
     tag_ids: number[];
     gpx: File | null;
     route_geojson: string;
+    banner: File | null;
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Events', href: '/events' },
     { title: 'Create Event', href: '/events/create' },
 ];
+
+const GROUP_RIDE_SLUG = 'group-rides';
+
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const SAFE_URL_RE = /^https?:\/\//i;
+const DANGEROUS_PROTOCOL_RE = /^(javascript|data|vbscript|blob):/i;
+const HTML_TAG_RE = /<[^>]+>/;
+
+function validateUrl(value: string): string | null {
+    if (!value) return null;
+    const v = value.trim();
+    if (DANGEROUS_PROTOCOL_RE.test(v)) return 'URL uses a disallowed protocol.';
+    if (!SAFE_URL_RE.test(v)) return 'URL must start with https:// or http://.';
+    return null;
+}
+
+function validateText(value: string): string | null {
+    if (HTML_TAG_RE.test(value)) return 'HTML tags are not allowed.';
+    return null;
+}
 
 export default function EventCreate({ categories, sponsors, tags }: EventCreateProps) {
     const { name } = usePage<SharedData>().props;
@@ -91,7 +113,24 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
         tag_ids: [],
         gpx: null,
         route_geojson: '',
+        banner: null,
     });
+
+    const selectedCategory = categories.find((c) => c.id.toString() === data.category_id);
+    const isGroupRide = selectedCategory?.slug === GROUP_RIDE_SLUG;
+
+    const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
+
+    function validateForm(): Record<string, string> {
+        const errs: Record<string, string> = {};
+        let msg: string | null;
+        if ((msg = validateText(data.title))) errs.title = msg;
+        if ((msg = validateText(data.description))) errs.description = msg;
+        if ((msg = validateText(data.pace))) errs.pace = msg;
+        if ((msg = validateUrl(data.url))) errs.url = msg;
+        if ((msg = validateUrl(data.route_url))) errs.route_url = msg;
+        return errs;
+    }
 
     const [locationValue, setLocationValue] = useState<LocationResult | null>(null);
 
@@ -106,6 +145,7 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
         }));
     };
 
+    // GPX handling
     const gpxInputRef = useRef<HTMLInputElement>(null);
     const [gpxParsing, setGpxParsing] = useState(false);
     const [gpxError, setGpxError] = useState<string | null>(null);
@@ -149,8 +189,36 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
         if (gpxInputRef.current) gpxInputRef.current.value = '';
     };
 
+    // Banner handling
+    const bannerInputRef = useRef<HTMLInputElement>(null);
+    const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+
+    const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+            setClientErrors((prev) => ({ ...prev, banner: 'Please upload a valid image (JPEG, PNG, WebP, or GIF).' }));
+            if (bannerInputRef.current) bannerInputRef.current.value = '';
+            return;
+        }
+        setClientErrors(({ banner: _, ...rest }) => rest);
+        setData('banner', file);
+        setBannerPreview(URL.createObjectURL(file));
+    };
+
+    const handleRemoveBanner = () => {
+        setData('banner', null);
+        setBannerPreview(null);
+        setClientErrors(({ banner: _, ...rest }) => rest);
+        if (bannerInputRef.current) bannerInputRef.current.value = '';
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        const errs = validateForm();
+        const merged = { ...clientErrors, ...errs };
+        setClientErrors(merged);
+        if (Object.keys(merged).length > 0) return;
         post('/events', { forceFormData: true });
     };
 
@@ -181,8 +249,8 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                                     onChange={(e) => setData('title', e.target.value)}
                                     placeholder="Event title"
                                 />
-                                {errors.title && (
-                                    <p className="text-sm text-destructive">{errors.title}</p>
+                                {(errors.title || clientErrors.title) && (
+                                    <p className="text-sm text-destructive">{errors.title || clientErrors.title}</p>
                                 )}
                             </div>
 
@@ -196,8 +264,8 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                                     rows={4}
                                     className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                                 />
-                                {errors.description && (
-                                    <p className="text-sm text-destructive">{errors.description}</p>
+                                {(errors.description || clientErrors.description) && (
+                                    <p className="text-sm text-destructive">{errors.description || clientErrors.description}</p>
                                 )}
                             </div>
 
@@ -210,8 +278,8 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                                     onChange={(e) => setData('url', e.target.value)}
                                     placeholder="https://..."
                                 />
-                                {errors.url && (
-                                    <p className="text-sm text-destructive">{errors.url}</p>
+                                {(errors.url || clientErrors.url) && (
+                                    <p className="text-sm text-destructive">{errors.url || clientErrors.url}</p>
                                 )}
                             </div>
                         </CardContent>
@@ -255,7 +323,7 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                     {/* Relations */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Category, Sponsor &amp; Location</CardTitle>
+                            <CardTitle>Category, Host &amp; Location</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
@@ -281,16 +349,16 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="sponsor_id">Sponsor</Label>
+                                <Label htmlFor="sponsor_id">Host</Label>
                                 <Select
                                     value={data.sponsor_id}
                                     onValueChange={(v) => setData('sponsor_id', v === 'none' ? '' : v)}
                                 >
                                     <SelectTrigger id="sponsor_id">
-                                        <SelectValue placeholder="No sponsor" />
+                                        <SelectValue placeholder="No host" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="none">No sponsor</SelectItem>
+                                        <SelectItem value="none">No host</SelectItem>
                                         {sponsors.map((s) => (
                                             <SelectItem key={s.id} value={s.id.toString()}>
                                                 {s.name}
@@ -304,7 +372,10 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                             </div>
 
                             <div className="space-y-2">
-                                <Label>Location</Label>
+                                <Label>
+                                    Location{' '}
+                                    <span className="font-normal text-muted-foreground">(start location for group rides)</span>
+                                </Label>
                                 <LocationSearch
                                     value={locationValue}
                                     onChange={handleLocationChange}
@@ -317,6 +388,166 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                                 )}
                             </div>
                         </CardContent>
+                    </Card>
+
+                    {/* Ride & Route — gated on group-rides category */}
+                    <Card className={!isGroupRide ? 'opacity-60' : undefined}>
+                        <CardHeader>
+                            <div className="flex items-center justify-between gap-2">
+                                <CardTitle>Ride &amp; Route</CardTitle>
+                                {!isGroupRide && (
+                                    <span className="text-xs text-muted-foreground">
+                                        Select &ldquo;Group Rides&rdquo; as the category to unlock
+                                    </span>
+                                )}
+                            </div>
+                        </CardHeader>
+                        {isGroupRide ? (
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="pace">Pace *</Label>
+                                    <Input
+                                        id="pace"
+                                        value={data.pace}
+                                        onChange={(e) => setData('pace', e.target.value)}
+                                        placeholder="e.g. 28–32 km/h, A-grade, Social, or multiple groups — fast (35kph), tempo (30kph) and social (25kph)"
+                                    />
+                                    {(errors.pace || clientErrors.pace) && (
+                                        <p className="text-sm text-destructive">{errors.pace || clientErrors.pace}</p>
+                                    )}
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="ride_distance_km">Distance (km) *</Label>
+                                        <Input
+                                            id="ride_distance_km"
+                                            type="number"
+                                            min={0}
+                                            step="0.1"
+                                            value={data.ride_distance_km}
+                                            onChange={(e) => setData('ride_distance_km', e.target.value)}
+                                            placeholder="e.g. 120"
+                                        />
+                                        {errors.ride_distance_km && (
+                                            <p className="text-sm text-destructive">{errors.ride_distance_km}</p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="elevation_gain_m">Elevation Gain (m) *</Label>
+                                        <Input
+                                            id="elevation_gain_m"
+                                            type="number"
+                                            min={0}
+                                            step="1"
+                                            value={data.elevation_gain_m}
+                                            onChange={(e) => setData('elevation_gain_m', e.target.value)}
+                                            placeholder="e.g. 1500"
+                                        />
+                                        {errors.elevation_gain_m && (
+                                            <p className="text-sm text-destructive">{errors.elevation_gain_m}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <Separator />
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="route_url">Route URL *</Label>
+                                    <Input
+                                        id="route_url"
+                                        type="url"
+                                        value={data.route_url}
+                                        onChange={(e) => setData('route_url', e.target.value)}
+                                        placeholder="e.g. https://www.strava.com/routes/..."
+                                    />
+                                    {(errors.route_url || clientErrors.route_url) && (
+                                        <p className="text-sm text-destructive">{errors.route_url || clientErrors.route_url}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Route File *</Label>
+                                    <div className="space-y-3">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="flex items-center gap-3">
+                                                {data.gpx ? (
+                                                    <>
+                                                        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+                                                            <RouteIcon className="size-4 text-green-700 dark:text-green-400" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                                                                Route ready
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground">{data.gpx.name}</p>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                                                            <FileX2 className="size-4 text-muted-foreground" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-medium">No route file</p>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                Upload a GPX file to show the route on the map
+                                                            </p>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            {data.gpx && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="shrink-0 text-destructive hover:text-destructive"
+                                                    onClick={handleRemoveGpx}
+                                                >
+                                                    Remove
+                                                </Button>
+                                            )}
+                                        </div>
+
+                                        <input
+                                            ref={gpxInputRef}
+                                            type="file"
+                                            accept=".gpx,application/gpx+xml,text/xml,application/xml"
+                                            className="hidden"
+                                            onChange={handleGpxChange}
+                                            disabled={gpxParsing}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full"
+                                            onClick={() => gpxInputRef.current?.click()}
+                                            disabled={gpxParsing}
+                                        >
+                                            {gpxParsing ? (
+                                                <Loader2 className="mr-2 size-4 animate-spin" />
+                                            ) : (
+                                                <Upload className="mr-2 size-4" />
+                                            )}
+                                            {gpxParsing ? 'Parsing GPX…' : data.gpx ? 'Replace GPX file' : 'Upload GPX file'}
+                                        </Button>
+
+                                        {gpxError && <p className="text-sm text-destructive">{gpxError}</p>}
+                                        {errors.gpx && <p className="text-sm text-destructive">{errors.gpx}</p>}
+                                    </div>
+                                </div>
+                            </CardContent>
+                        ) : (
+                            <CardContent>
+                                <p className="text-sm text-muted-foreground">
+                                    Pace, distance, elevation, route URL, and route file apply to group ride events.
+                                    Select the &ldquo;Group Rides&rdquo; category to fill in these fields.
+                                </p>
+                            </CardContent>
+                        )}
                     </Card>
 
                     {/* Tags */}
@@ -346,9 +577,7 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                                     </div>
                                 ))}
                             </div>
-                            {errors.tag_ids && (
-                                <p className="mt-2 text-sm text-destructive">{errors.tag_ids}</p>
-                            )}
+                            {errors.tag_ids && <p className="mt-2 text-sm text-destructive">{errors.tag_ids}</p>}
                         </CardContent>
                     </Card>
 
@@ -448,151 +677,60 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                         </CardContent>
                     </Card>
 
-                    {/* Ride & Route */}
+                    {/* Banner Image */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Ride &amp; Route</CardTitle>
+                            <CardTitle>Banner Image</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <p className="text-sm text-muted-foreground">
-                                Leave blank if this is not a ride event.
+                                Optional. Recommended 800×400px. If omitted, the event host's logo will be used as a
+                                fallback.
                             </p>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="pace">Pace</Label>
-                                <Input
-                                    id="pace"
-                                    value={data.pace}
-                                    onChange={(e) => setData('pace', e.target.value)}
-                                    placeholder="e.g. 28–32 km/h, A-grade, Social"
-                                />
-                                {errors.pace && (
-                                    <p className="text-sm text-destructive">{errors.pace}</p>
-                                )}
-                            </div>
-
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label htmlFor="ride_distance_km">Distance (km)</Label>
-                                    <Input
-                                        id="ride_distance_km"
-                                        type="number"
-                                        min={0}
-                                        step="0.1"
-                                        value={data.ride_distance_km}
-                                        onChange={(e) => setData('ride_distance_km', e.target.value)}
-                                        placeholder="e.g. 120"
-                                    />
-                                    {errors.ride_distance_km && (
-                                        <p className="text-sm text-destructive">{errors.ride_distance_km}</p>
-                                    )}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="elevation_gain_m">Elevation Gain (m)</Label>
-                                    <Input
-                                        id="elevation_gain_m"
-                                        type="number"
-                                        min={0}
-                                        step="1"
-                                        value={data.elevation_gain_m}
-                                        onChange={(e) => setData('elevation_gain_m', e.target.value)}
-                                        placeholder="e.g. 1500"
-                                    />
-                                    {errors.elevation_gain_m && (
-                                        <p className="text-sm text-destructive">{errors.elevation_gain_m}</p>
-                                    )}
-                                </div>
-                            </div>
-
-                            <Separator />
-
-                            <div className="space-y-2">
-                                <Label htmlFor="route_url">Route URL</Label>
-                                <Input
-                                    id="route_url"
-                                    type="url"
-                                    value={data.route_url}
-                                    onChange={(e) => setData('route_url', e.target.value)}
-                                    placeholder="e.g. https://www.strava.com/routes/..."
-                                />
-                                {errors.route_url && (
-                                    <p className="text-sm text-destructive">{errors.route_url}</p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Route File</Label>
-                                <div className="space-y-3">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div className="flex items-center gap-3">
-                                            {data.gpx ? (
-                                                <>
-                                                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                                                        <RouteIcon className="size-4 text-green-700 dark:text-green-400" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-medium text-green-700 dark:text-green-400">
-                                                            Route ready
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">{data.gpx.name}</p>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-                                                        <FileX2 className="size-4 text-muted-foreground" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-medium">No route file</p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            Upload a GPX file to show the route on the map
-                                                        </p>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-
-                                        {data.gpx && (
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                className="shrink-0 text-destructive hover:text-destructive"
-                                                onClick={handleRemoveGpx}
-                                            >
-                                                Remove
-                                            </Button>
-                                        )}
-                                    </div>
-
-                                    <input
-                                        ref={gpxInputRef}
-                                        type="file"
-                                        accept=".gpx,application/gpx+xml,text/xml,application/xml"
-                                        className="hidden"
-                                        onChange={handleGpxChange}
-                                        disabled={gpxParsing}
+                            {bannerPreview ? (
+                                <div className="relative overflow-hidden rounded-lg">
+                                    <img
+                                        src={bannerPreview}
+                                        alt="Banner preview"
+                                        className="aspect-[2/1] w-full object-cover"
                                     />
                                     <Button
                                         type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full"
-                                        onClick={() => gpxInputRef.current?.click()}
-                                        disabled={gpxParsing}
+                                        variant="secondary"
+                                        size="icon"
+                                        className="absolute top-2 right-2 size-7"
+                                        onClick={handleRemoveBanner}
                                     >
-                                        {gpxParsing ? (
-                                            <Loader2 className="mr-2 size-4 animate-spin" />
-                                        ) : (
-                                            <Upload className="mr-2 size-4" />
-                                        )}
-                                        {gpxParsing ? 'Parsing GPX…' : data.gpx ? 'Replace GPX file' : 'Upload GPX file'}
+                                        <Trash2 className="size-3.5" />
                                     </Button>
-
-                                    {gpxError && <p className="text-sm text-destructive">{gpxError}</p>}
-                                    {errors.gpx && <p className="text-sm text-destructive">{errors.gpx}</p>}
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="flex aspect-[2/1] items-center justify-center rounded-lg border-2 border-dashed">
+                                    <ImageIcon className="size-10 text-muted-foreground/30" />
+                                </div>
+                            )}
+
+                            <input
+                                ref={bannerInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                                className="hidden"
+                                onChange={handleBannerChange}
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => bannerInputRef.current?.click()}
+                            >
+                                <Upload className="mr-2 size-4" />
+                                {data.banner ? 'Replace image' : 'Upload image'}
+                            </Button>
+
+                            {(errors.banner || clientErrors.banner) && (
+                                <p className="text-sm text-destructive">{errors.banner || clientErrors.banner}</p>
+                            )}
                         </CardContent>
                     </Card>
 

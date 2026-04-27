@@ -4,7 +4,6 @@ import {
     Clock,
     ExternalLink,
     Gauge,
-    ImageIcon,
     MapPin,
     Mountain,
     Pencil,
@@ -23,6 +22,9 @@ import type { SharedData } from '@/types';
 import type { Event } from '@/types/events';
 
 import { FavouriteButton } from './favourite-button';
+
+// Replace with any stable cycling image URL if needed
+const FALLBACK_CYCLING_IMAGE = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&h=400&q=80';
 
 const CATEGORY_BADGE_COLORS: Record<string, string> = {
     'race-stages':     'bg-[#0a72bf]/10 text-[#0a72bf] dark:bg-[#0a72bf]/20 dark:text-[#4da6f5]',
@@ -76,17 +78,42 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
         >
             {/* Card Image */}
             <div className="relative h-32 shrink-0 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
-                {event.banner_image_url ? (
-                    <img
-                        src={event.banner_image_url}
-                        alt={event.title}
-                        className="absolute inset-0 h-full w-full object-cover"
-                    />
-                ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <ImageIcon className="size-10 text-slate-300 dark:text-slate-600" />
-                    </div>
-                )}
+                {(() => {
+                    const bannerUrl = event.banner_image_url;
+                    const sponsorRectUrl = isDark
+                        ? (event.sponsor?.logo_rect_dark_url || event.sponsor?.logo_rect_url)
+                        : event.sponsor?.logo_rect_url;
+
+                    if (bannerUrl) {
+                        return (
+                            <img
+                                src={bannerUrl}
+                                alt={event.title}
+                                className="absolute inset-0 h-full w-full object-cover"
+                            />
+                        );
+                    }
+
+                    if (sponsorRectUrl) {
+                        return (
+                            <div className="absolute inset-0 flex items-center justify-center p-4">
+                                <img
+                                    src={sponsorRectUrl}
+                                    alt={event.sponsor?.name}
+                                    className="max-h-full max-w-full object-contain"
+                                />
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <img
+                            src={FALLBACK_CYCLING_IMAGE}
+                            alt="Cycling event"
+                            className="absolute inset-0 h-full w-full object-cover"
+                        />
+                    );
+                })()}
                 
                 {/* Sponsor logo */}
                 {event.sponsor && (() => {

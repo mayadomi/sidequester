@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Sponsor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -40,6 +41,42 @@ class SponsorPageController extends Controller
             'sponsors' => $sponsors,
             'isAdmin' => $user->isAdmin(),
         ]);
+    }
+
+    /**
+     * Rename a sponsor. Admin only.
+     */
+    public function update(Request $request, Sponsor $sponsor): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $sponsor->update([
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+        ]);
+
+        return redirect()->route('event-hosts.index')->with('success', 'Event host renamed.');
+    }
+
+    /**
+     * Delete a sponsor and all associated media. Admin only.
+     * Sponsors with events attached cannot be deleted.
+     */
+    public function destroy(Request $request, Sponsor $sponsor): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        if ($sponsor->events()->exists()) {
+            return back()->withErrors(['delete' => 'Cannot delete an event host that has events attached.']);
+        }
+
+        $sponsor->delete();
+
+        return redirect()->route('event-hosts.index')->with('success', 'Event host deleted.');
     }
 
     /**

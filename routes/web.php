@@ -82,6 +82,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified', 'editor'])->group(function () {
     // Organising body management (logo uploads etc.) — editors see only their verified bodies
     Route::get('/event-hosts', [SponsorPageController::class, 'index'])->name('event-hosts.index');
+    Route::patch('/event-hosts/{sponsor:slug}', [SponsorPageController::class, 'update'])->name('event-hosts.update');
+    Route::delete('/event-hosts/{sponsor:slug}', [SponsorPageController::class, 'destroy'])->name('event-hosts.destroy');
     Route::post('/event-hosts/{sponsor:slug}/images/{collection}', [SponsorPageController::class, 'uploadImage'])->name('event-hosts.image.upload');
     Route::delete('/event-hosts/{sponsor:slug}/images/{collection}', [SponsorPageController::class, 'deleteImage'])->name('event-hosts.image.delete');
 
