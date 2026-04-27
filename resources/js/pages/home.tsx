@@ -349,10 +349,10 @@ function EventCarouselCard({ event, isLoggedIn }: { event: Event; isLoggedIn: bo
                             Live
                         </Badge>
                     )}
-                    {event.is_featured && (
+                    {event.is_race_stage && (
                         <Badge className="bg-[#d4920a] text-white text-[10px]">
                             <Sparkles className="mr-1 size-2.5" />
-                            Featured
+                            Race Stage
                         </Badge>
                     )}
                 </div>

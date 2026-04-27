@@ -75,14 +75,14 @@ test('scopeBetweenDates filters inclusive date range', function () {
 
 // ── Boolean flag scopes ───────────────────────────────────────────────────────
 
-test('scopeFeatured returns only featured events', function () {
-    $featured = Event::factory()->featured()->create();
-    $notFeatured = Event::factory()->create();
+test('scopeRaceStage returns only race stage events', function () {
+    $raceStage = Event::factory()->raceStage()->create();
+    $notRaceStage = Event::factory()->create();
 
-    $results = Event::featured()->pluck('id');
+    $results = Event::raceStage()->pluck('id');
 
-    expect($results)->toContain($featured->id)
-        ->not->toContain($notFeatured->id);
+    expect($results)->toContain($raceStage->id)
+        ->not->toContain($notRaceStage->id);
 });
 
 test('scopeRecurring returns only recurring events', function () {

@@ -1,6 +1,6 @@
 import type { FormDataConvertible } from '@inertiajs/core';
 import { router } from '@inertiajs/react';
-import { Filter, Loader2, RotateCcw } from 'lucide-react';
+import { Filter, Loader2, Mountain, Route, RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -155,12 +155,12 @@ export function EventFilters({
                 </div>
                 <div className="flex items-center space-x-2">
                     <Checkbox
-                        id="featured"
-                        checked={filters.featured ?? false}
-                        onCheckedChange={(checked) => updateAndApply('featured', checked as boolean)}
+                        id="race_stage"
+                        checked={filters.race_stage ?? false}
+                        onCheckedChange={(checked) => updateAndApply('race_stage', checked as boolean)}
                     />
-                    <Label htmlFor="featured" className="cursor-pointer text-sm font-normal">
-                        Featured
+                    <Label htmlFor="race_stage" className="cursor-pointer text-sm font-normal">
+                        Race Stages
                     </Label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -282,72 +282,87 @@ export function EventFilters({
                 </div>
             </div>}
 
+            <Separator />
+
+            {/* Group Rides */}
+            <div className="space-y-4">
+                <Label className="flex items-center gap-1.5 text-sm font-medium">
+                    <Route className="size-3.5 text-muted-foreground" />
+                    Group Rides
+                </Label>
+
+                {/* Distance Range */}
+                <div className="space-y-2">
+                    <Label className="flex items-center gap-1 text-xs text-muted-foreground">
+                        Distance (km)
+                    </Label>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="min_distance" className="text-xs text-muted-foreground">Min</Label>
+                            <Input
+                                id="min_distance"
+                                type="number"
+                                min="0"
+                                placeholder="0"
+                                value={filters.min_distance ?? ''}
+                                onChange={(e) => updateFilter('min_distance', e.target.value ? parseFloat(e.target.value) : undefined)}
+                                onBlur={applyNow}
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="max_distance" className="text-xs text-muted-foreground">Max</Label>
+                            <Input
+                                id="max_distance"
+                                type="number"
+                                min="0"
+                                placeholder="Any"
+                                value={filters.max_distance ?? ''}
+                                onChange={(e) => updateFilter('max_distance', e.target.value ? parseFloat(e.target.value) : undefined)}
+                                onBlur={applyNow}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Elevation Range */}
+                <div className="space-y-2">
+                    <Label className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Mountain className="size-3" />
+                        Elevation (m)
+                    </Label>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="min_elevation" className="text-xs text-muted-foreground">Min</Label>
+                            <Input
+                                id="min_elevation"
+                                type="number"
+                                min="0"
+                                placeholder="0"
+                                value={filters.min_elevation ?? ''}
+                                onChange={(e) => updateFilter('min_elevation', e.target.value ? parseInt(e.target.value) : undefined)}
+                                onBlur={applyNow}
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="max_elevation" className="text-xs text-muted-foreground">Max</Label>
+                            <Input
+                                id="max_elevation"
+                                type="number"
+                                min="0"
+                                placeholder="Any"
+                                value={filters.max_elevation ?? ''}
+                                onChange={(e) => updateFilter('max_elevation', e.target.value ? parseInt(e.target.value) : undefined)}
+                                onBlur={applyNow}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Expanded Filters */}
             {isExpanded && (
                 <>
                     <Separator />
-
-                    {/* Distance Range */}
-                    <div className="space-y-4">
-                        <Label className="text-sm font-medium">Distance (km)</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="min_distance" className="text-xs text-muted-foreground">Min</Label>
-                                <Input
-                                    id="min_distance"
-                                    type="number"
-                                    min="0"
-                                    placeholder="0"
-                                    value={filters.min_distance ?? ''}
-                                    onChange={(e) => updateFilter('min_distance', e.target.value ? parseFloat(e.target.value) : undefined)}
-                                    onBlur={applyNow}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="max_distance" className="text-xs text-muted-foreground">Max</Label>
-                                <Input
-                                    id="max_distance"
-                                    type="number"
-                                    min="0"
-                                    placeholder="Any"
-                                    value={filters.max_distance ?? ''}
-                                    onChange={(e) => updateFilter('max_distance', e.target.value ? parseFloat(e.target.value) : undefined)}
-                                    onBlur={applyNow}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Elevation Range */}
-                    <div className="space-y-4">
-                        <Label className="text-sm font-medium">Elevation (m)</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="min_elevation" className="text-xs text-muted-foreground">Min</Label>
-                                <Input
-                                    id="min_elevation"
-                                    type="number"
-                                    min="0"
-                                    placeholder="0"
-                                    value={filters.min_elevation ?? ''}
-                                    onChange={(e) => updateFilter('min_elevation', e.target.value ? parseInt(e.target.value) : undefined)}
-                                    onBlur={applyNow}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="max_elevation" className="text-xs text-muted-foreground">Max</Label>
-                                <Input
-                                    id="max_elevation"
-                                    type="number"
-                                    min="0"
-                                    placeholder="Any"
-                                    value={filters.max_elevation ?? ''}
-                                    onChange={(e) => updateFilter('max_elevation', e.target.value ? parseInt(e.target.value) : undefined)}
-                                    onBlur={applyNow}
-                                />
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Cost Range */}
                     <div className="space-y-4">

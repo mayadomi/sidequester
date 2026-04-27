@@ -4,6 +4,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Host Sponsor
+    |--------------------------------------------------------------------------
+    |
+    | The slug of the sponsor that acts as the primary TDU event host.
+    | Editors verified with this sponsor can access restricted categories.
+    |
+    */
+
+    'host_sponsor_slug' => 'tdu',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Restricted Category Slugs
+    |--------------------------------------------------------------------------
+    |
+    | Categories only available to the TDU host (or admins).
+    | All other editors will not see these options in the event form.
+    |
+    */
+
+    'restricted_category_slugs' => ['race-stages', 'official-events'],
+
+    /*
+    |--------------------------------------------------------------------------
     | Event Categories
     |--------------------------------------------------------------------------
     |
@@ -114,7 +138,7 @@ return [
         'maap' => 'MAAP',
         'pedla' => 'Pedla',
         'black-sheep' => 'Black Sheep',
-        'wahoo'=> 'Wahoo',
+        'wahoo' => 'Wahoo',
         'oakley' => 'Oakley',
         'health-partners' => 'Health Partners',
         'canyon' => 'Canyon',

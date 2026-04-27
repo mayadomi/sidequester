@@ -61,15 +61,15 @@ class EventPageController extends Controller
         $tags = Cache::remember('filter_tags', 3600, fn () => Tag::withCount('events')->orderBy('name')->get()
         );
 
-        // Get featured events when no content filters are active
-        $featuredEvents = null;
+        // Get race stage events when no content filters are active
+        $raceStageEvents = null;
         $contentFilters = $request->except(['page', 'per_page', 'year', 'sort', 'order']);
         if (empty($contentFilters)) {
-            $featuredEvents = EventResource::collection(
+            $raceStageEvents = EventResource::collection(
                 Event::with(['category', 'sponsor', 'tags'])
                     ->forTduYear($tduYear)
                     ->withCount('favouritedBy')
-                    ->featured()
+                    ->raceStage()
                     ->orderBy('start_datetime')
                     ->limit(6)
                     ->get()
@@ -83,12 +83,12 @@ class EventPageController extends Controller
             'filters' => (object) $request->only([
                 'search', 'date', 'start_date', 'end_date', 'category', 'sponsor',
                 'min_distance', 'max_distance', 'min_elevation', 'max_elevation',
-                'rides_only', 'featured', 'free', 'recurring', 'womens', 'min_cost', 'max_cost',
+                'rides_only', 'race_stage', 'free', 'recurring', 'womens', 'min_cost', 'max_cost',
                 'min_favourites', 'tags', 'sort', 'order',
             ]),
             'tduYear' => $tduYear,
             'availableYears' => Event::availableTduYears(),
-            'featuredEvents' => $featuredEvents,
+            'raceStageEvents' => $raceStageEvents,
         ]);
     }
 
@@ -102,7 +102,7 @@ class EventPageController extends Controller
         $user = auth()->user();
 
         return Inertia::render('events/create', [
-            'categories' => Category::orderBy('name')->get(['id', 'name', 'slug']),
+            'categories' => $this->categoriesForUser($user),
             'sponsors' => $user->isAdmin()
                 ? Sponsor::orderBy('name')->get(['id', 'name'])
                 : $user->verifiedSponsors()->orderBy('sponsors.name')->get(['sponsors.id', 'sponsors.name']),
@@ -163,7 +163,7 @@ class EventPageController extends Controller
                 'pace' => $event->pace,
                 'route_url' => $event->route_url,
                 'url' => $event->url,
-                'is_featured' => $event->is_featured,
+                'is_race_stage' => $event->is_race_stage,
                 'is_recurring' => $event->is_recurring,
                 'is_womens' => $event->is_womens,
                 'is_free' => $event->is_free,
@@ -176,7 +176,7 @@ class EventPageController extends Controller
                 'has_route' => $event->hasMedia('route_gpx'),
                 'route_gpx_name' => $event->getFirstMedia('route_gpx')?->file_name,
             ],
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'categories' => $this->categoriesForUser($user),
             'sponsors' => $user->isAdmin()
                 ? Sponsor::orderBy('name')->get(['id', 'name'])
                 : $user->verifiedSponsors()->orderBy('sponsors.name')->get(['sponsors.id', 'sponsors.name']),
@@ -256,6 +256,21 @@ class EventPageController extends Controller
         $event->clearRouteGeometry();
 
         return back()->with('success', 'Route removed.');
+    }
+
+    /**
+     * Return categories visible to this user.
+     * Admins and TDU-host editors see all; others have restricted slugs excluded.
+     */
+    private function categoriesForUser(\App\Models\User $user): \Illuminate\Database\Eloquent\Collection
+    {
+        $query = Category::orderBy('name');
+
+        if (! $user->isAdmin() && ! $user->isTduEditor()) {
+            $query->whereNotIn('slug', config('tdu.restricted_category_slugs', []));
+        }
+
+        return $query->get(['id', 'name', 'slug']);
     }
 
     /**

@@ -94,8 +94,8 @@ export function TimelineEvent({
                 </a>
             )}
 
-            {/* Featured dot */}
-            {event.is_featured && (
+            {/* Race stage dot */}
+            {event.is_race_stage && (
                 <div className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-yellow-400 ring-1 ring-white" />
             )}
         </div>

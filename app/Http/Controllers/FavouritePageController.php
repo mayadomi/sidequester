@@ -48,7 +48,7 @@ class FavouritePageController extends Controller
                         'url' => $event->url,
                         'ride_distance_km' => $event->ride_distance_km,
                         'elevation_gain_m' => $event->elevation_gain_m,
-                        'is_featured' => $event->is_featured,
+                        'is_race_stage' => $event->is_race_stage,
                         'sponsor_logo_url' => $event->sponsor?->getFirstMediaUrl('logo_square', 'display') ?: null,
                         'sponsor_logo_dark_url' => $event->sponsor?->getFirstMediaUrl('logo_square_dark', 'display') ?: null,
                         'is_favourited' => true,

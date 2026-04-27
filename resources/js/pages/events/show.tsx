@@ -84,8 +84,8 @@ export default function EventShow({ event, can_edit }: EventShowProps) {
                                     Happening Now
                                 </Badge>
                             )}
-                            {event.is_featured && (
-                                <Badge className="bg-[#d4920a] text-white">Featured</Badge>
+                            {event.is_race_stage && (
+                                <Badge className="bg-[#d4920a] text-white">Race Stage</Badge>
                             )}
                             {event.category && (
                                 <Badge variant="secondary">{event.category.name}</Badge>

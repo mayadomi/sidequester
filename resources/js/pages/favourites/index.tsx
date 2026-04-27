@@ -25,7 +25,7 @@ interface FavMapEvent {
     url: string | null;
     ride_distance_km: number | null;
     elevation_gain_m: number | null;
-    is_featured: boolean;
+    is_race_stage: boolean;
     sponsor_logo_url: string | null;
     sponsor_logo_dark_url: string | null;
     is_favourited: boolean;

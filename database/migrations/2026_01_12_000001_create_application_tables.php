@@ -2,12 +2,18 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
+        // Enable PostGIS for spatial queries (PostgreSQL only)
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('CREATE EXTENSION IF NOT EXISTS postgis');
+        }
+
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -19,15 +25,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->timestamps();
-        });
-
-        Schema::create('locations', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->decimal('latitude', 10, 7);
-            $table->decimal('longitude', 10, 7);
-            $table->string('address')->nullable();
+            $table->string('website')->nullable();
             $table->timestamps();
         });
 
@@ -39,8 +37,11 @@ return new class extends Migration
             $table->dateTime('start_datetime');
             $table->dateTime('end_datetime');
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('sponsor_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('location_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('sponsor_id')->nullable()->constrained()->nullOnDelete();
+            $table->text('location_name')->nullable();
+            $table->text('location_address')->nullable();
+            $table->decimal('location_lat', 10, 7)->nullable();
+            $table->decimal('location_lng', 10, 7)->nullable();
             $table->decimal('ride_distance_km', 5, 2)->nullable();
             $table->integer('elevation_gain_m')->nullable();
             $table->string('pace')->nullable();
@@ -48,7 +49,7 @@ return new class extends Migration
             $table->text('url')->nullable();
             $table->decimal('min_cost', 8, 2)->nullable();
             $table->decimal('max_cost', 8, 2)->nullable();
-            $table->boolean('is_featured')->default(false);
+            $table->boolean('is_race_stage')->default(false);
             $table->boolean('is_recurring')->default(false);
             $table->boolean('is_womens')->default(false);
             $table->boolean('is_free')->default(true);
@@ -56,13 +57,21 @@ return new class extends Migration
 
             $table->index('start_datetime');
             $table->index('end_datetime');
-            $table->index('is_featured');
+            $table->index('is_race_stage');
             $table->index('is_recurring');
             $table->index('is_womens');
             $table->index('is_free');
             $table->index('min_cost');
             $table->index('max_cost');
         });
+
+        // PostgreSQL spatial columns on events
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE events ADD COLUMN route_geometry geometry(LineString, 4326)');
+            DB::statement('CREATE INDEX events_route_geometry_idx ON events USING GIST (route_geometry)');
+            DB::statement('ALTER TABLE events ADD COLUMN location_geometry geometry(Point, 4326)');
+            DB::statement('CREATE INDEX events_location_geometry_idx ON events USING GIST (location_geometry)');
+        }
 
         Schema::create('favourites', function (Blueprint $table) {
             $table->id();
@@ -104,16 +113,42 @@ return new class extends Migration
             $table->unsignedInteger('order_column')->nullable()->index();
             $table->nullableTimestamps();
         });
+
+        Schema::create('sponsor_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('sponsor_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('status')->default('pending');
+            $table->string('request_type');
+            $table->text('editor_note')->nullable();
+            $table->text('admin_note')->nullable();
+            $table->string('proposed_sponsor_name')->nullable();
+            $table->string('proposed_sponsor_website')->nullable();
+            $table->timestamp('verified_at')->nullable();
+            $table->foreignId('verified_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamps();
+
+            $table->index('status');
+            $table->index(['user_id', 'status']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('sponsor_user');
         Schema::dropIfExists('media');
         Schema::dropIfExists('event_tag');
         Schema::dropIfExists('tags');
         Schema::dropIfExists('favourites');
+
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('DROP INDEX IF EXISTS events_location_geometry_idx');
+            DB::statement('DROP INDEX IF EXISTS events_route_geometry_idx');
+            DB::statement('ALTER TABLE events DROP COLUMN IF EXISTS location_geometry');
+            DB::statement('ALTER TABLE events DROP COLUMN IF EXISTS route_geometry');
+        }
+
         Schema::dropIfExists('events');
-        Schema::dropIfExists('locations');
         Schema::dropIfExists('sponsors');
         Schema::dropIfExists('categories');
     }

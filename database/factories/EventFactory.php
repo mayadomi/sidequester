@@ -26,7 +26,7 @@ class EventFactory extends Factory
             'location_lng' => $this->faker->longitude(138.3, 139.2),
             'ride_distance_km' => null,
             'elevation_gain_m' => null,
-            'is_featured' => false,
+            'is_race_stage' => false,
             'is_recurring' => false,
             'is_womens' => false,
             'is_free' => true,
@@ -38,9 +38,9 @@ class EventFactory extends Factory
         ];
     }
 
-    public function featured(): static
+    public function raceStage(): static
     {
-        return $this->state(['is_featured' => true]);
+        return $this->state(['is_race_stage' => true]);
     }
 
     public function recurring(): static

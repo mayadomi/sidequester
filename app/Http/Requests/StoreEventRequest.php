@@ -23,7 +23,19 @@ class StoreEventRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'start_datetime' => ['required', 'date'],
             'end_datetime' => ['required', 'date', 'after:start_datetime'],
-            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'category_id' => [
+                'required', 'integer', 'exists:categories,id',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    $user = $this->user();
+                    if ($user->isAdmin() || $user->isTduEditor()) {
+                        return;
+                    }
+                    $slug = Category::where('id', $value)->value('slug');
+                    if (in_array($slug, config('tdu.restricted_category_slugs', []))) {
+                        $fail('You do not have permission to use this category.');
+                    }
+                },
+            ],
             'sponsor_id' => [
                 'nullable',
                 'integer',
@@ -50,7 +62,7 @@ class StoreEventRequest extends FormRequest
             'elevation_gain_m' => [$groupRide ? 'required' : 'nullable', 'integer', 'min:0'],
             'route_url' => [$groupRide ? 'required' : 'nullable', 'url', 'max:500'],
             'url' => ['nullable', 'url', 'max:500'],
-            'is_featured' => ['boolean'],
+            'is_race_stage' => ['boolean'],
             'is_recurring' => ['boolean'],
             'is_womens' => ['boolean'],
             'is_free' => ['boolean'],

@@ -64,7 +64,7 @@ class ScheduleController extends Controller
         $tags = Tag::withCount('events')->orderBy('name')->get(['id', 'name', 'slug']);
         $currentFilters = $request->only([
             'search', 'category', 'tags', 'min_distance', 'max_distance',
-            'min_elevation', 'max_elevation', 'rides_only', 'featured', 'free',
+            'min_elevation', 'max_elevation', 'rides_only', 'race_stage', 'free',
             'recurring', 'womens', 'min_cost', 'max_cost',
         ]);
 
@@ -106,7 +106,7 @@ class ScheduleController extends Controller
                         'location_name' => $event->location_name,
                         'ride_distance_km' => $event->ride_distance_km,
                         'elevation_gain_m' => $event->elevation_gain_m,
-                        'is_featured' => $event->is_featured,
+                        'is_race_stage' => $event->is_race_stage,
                         'url' => $event->url,
                     ];
                 })->values()->toArray(),

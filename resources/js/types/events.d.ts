@@ -37,7 +37,7 @@ export interface Event {
     day_of_week: string;
     pace: string | null;
     route_url: string | null;
-    is_featured: boolean;
+    is_race_stage: boolean;
     is_recurring: boolean;
     is_womens: boolean;
     is_happening_now: boolean;
@@ -109,7 +109,7 @@ export interface EventFilters {
     min_elevation?: number;
     max_elevation?: number;
     rides_only?: boolean;
-    featured?: boolean;
+    race_stage?: boolean;
     free?: boolean;
     recurring?: boolean;
     womens?: boolean;

@@ -112,6 +112,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user is verified with the TDU host sponsor.
+     */
+    public function isTduEditor(): bool
+    {
+        return $this->verifiedSponsors()
+            ->where('slug', config('tdu.host_sponsor_slug'))
+            ->exists();
+    }
+
+    /**
      * Get all sponsor claims submitted by this user.
      */
     public function sponsorClaims(): HasMany

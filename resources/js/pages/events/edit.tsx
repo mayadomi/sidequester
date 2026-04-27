@@ -42,7 +42,7 @@ interface EditableEvent {
     pace: string | null;
     route_url: string | null;
     url: string | null;
-    is_featured: boolean;
+    is_race_stage: boolean;
     is_recurring: boolean;
     is_womens: boolean;
     is_free: boolean;
@@ -77,7 +77,7 @@ type FormData = {
     pace: string;
     route_url: string;
     url: string;
-    is_featured: boolean;
+    is_race_stage: boolean;
     is_recurring: boolean;
     is_womens: boolean;
     is_free: boolean;
@@ -139,7 +139,7 @@ export default function EventEdit({ event, categories, sponsors, tags }: EventEd
         pace: event.pace ?? '',
         route_url: event.route_url ?? '',
         url: event.url ?? '',
-        is_featured: event.is_featured,
+        is_race_stage: event.is_race_stage,
         is_recurring: event.is_recurring,
         is_womens: event.is_womens,
         is_free: event.is_free,
@@ -379,12 +379,12 @@ export default function EventEdit({ event, categories, sponsors, tags }: EventEd
                         <CardContent className="space-y-3">
                             <div className="flex items-center gap-3">
                                 <Checkbox
-                                    id="is_featured"
-                                    checked={data.is_featured}
-                                    onCheckedChange={(v) => setData('is_featured', Boolean(v))}
+                                    id="is_race_stage"
+                                    checked={data.is_race_stage}
+                                    onCheckedChange={(v) => setData('is_race_stage', Boolean(v))}
                                 />
-                                <Label htmlFor="is_featured" className="cursor-pointer font-normal">
-                                    Featured event
+                                <Label htmlFor="is_race_stage" className="cursor-pointer font-normal">
+                                    Race Stage
                                 </Label>
                             </div>
                             <div className="flex items-center gap-3">

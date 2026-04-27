@@ -22,7 +22,7 @@ interface EventsIndexProps {
     categories: Category[];
     tags: Tag[];
     filters: Filters;
-    featuredEvents?: Event[];
+    raceStageEvents?: Event[];
     tduYear: number;
     availableYears: number[];
 }
@@ -36,7 +36,7 @@ export default function EventsIndex({
     categories,
     tags,
     filters,
-    featuredEvents,
+    raceStageEvents,
     tduYear,
     availableYears,
 }: EventsIndexProps) {
@@ -90,7 +90,7 @@ export default function EventsIndex({
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Tour Down Under Events</h1>
                             <p className="mt-0.5 text-sm text-white/70 sm:text-base">
-                                Your guide to the world's greatest cycling festival
+                                Discover your next TDU sidequest!
                             </p>
                         </div>
                     </div>
@@ -189,25 +189,17 @@ export default function EventsIndex({
                             </Badge>
                         )}
                     </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href="/events/popular">Popular</Link>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href="/events/featured">Featured</Link>
-                        </Button>
-                    </div>
                 </div>
 
-                {/* Featured Events (if available and no filters applied) */}
-                {featuredEvents && featuredEvents.length > 0 && Object.keys(filters).length === 0 && (
+                {/* Race Stages (if available and no filters applied) */}
+                {raceStageEvents && raceStageEvents.length > 0 && Object.keys(filters).length === 0 && (
                     <section className="space-y-3 sm:space-y-4">
                         <div className="flex items-center gap-2">
                             <Sparkles className="size-5 text-[#ff7405]" />
-                            <h2 className="text-lg font-semibold sm:text-xl">Featured Events</h2>
+                            <h2 className="text-lg font-semibold sm:text-xl">Race Stages</h2>
                         </div>
                         <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
-                            {featuredEvents.slice(0, 3).map((event) => (
+                            {raceStageEvents.slice(0, 3).map((event) => (
                                 <EventCard key={event.id} event={event} />
                             ))}
                         </div>
@@ -244,15 +236,6 @@ export default function EventsIndex({
                                 )}
                             </div>
 
-                            {/* Quick Links */}
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="sm" asChild>
-                                    <Link href="/events/popular">Popular</Link>
-                                </Button>
-                                <Button variant="outline" size="sm" asChild>
-                                    <Link href="/events/featured">Featured</Link>
-                                </Button>
-                            </div>
                         </div>
 
                         {/* Events List */}

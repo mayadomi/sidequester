@@ -81,8 +81,8 @@ function EventRow({ event }: { event: Event }) {
                         >
                             {event.title}
                         </Link>
-                        {event.is_featured && (
-                            <Badge variant="secondary" className="shrink-0">Featured</Badge>
+                        {event.is_race_stage && (
+                            <Badge variant="secondary" className="shrink-0">Race Stage</Badge>
                         )}
                         {!isUpcoming && (
                             <Badge variant="outline" className="shrink-0 text-muted-foreground">Past</Badge>

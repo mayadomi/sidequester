@@ -38,7 +38,7 @@ class MapController extends Controller
         $tags = Tag::withCount('events')->orderBy('name')->get(['id', 'name', 'slug']);
         $currentFilters = $request->only([
             'search', 'category', 'tags', 'min_distance', 'max_distance',
-            'min_elevation', 'max_elevation', 'rides_only', 'featured', 'free',
+            'min_elevation', 'max_elevation', 'rides_only', 'race_stage', 'free',
             'recurring', 'womens', 'min_cost', 'max_cost',
         ]);
 
@@ -75,7 +75,7 @@ class MapController extends Controller
                         'url' => $event->url,
                         'ride_distance_km' => $event->ride_distance_km,
                         'elevation_gain_m' => $event->elevation_gain_m,
-                        'is_featured' => $event->is_featured,
+                        'is_race_stage' => $event->is_race_stage,
                         'route_geojson' => $event->route_feature_collection,
                         'sponsor_logo_url' => $event->sponsor?->getFirstMediaUrl('logo_square', 'display') ?: null,
                         'sponsor_logo_dark_url' => $event->sponsor?->getFirstMediaUrl('logo_square_dark', 'display') ?: null,

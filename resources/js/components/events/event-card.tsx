@@ -72,7 +72,7 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
         <Card
             className={cn(
                 'group relative flex h-full flex-col overflow-hidden transition-all hover:shadow-lg',
-                event.is_featured && 'ring-2 ring-[#d4920a]/40',
+                event.is_race_stage && 'ring-2 ring-[#d4920a]/40',
                 className,
             )}
         >
@@ -96,13 +96,11 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
 
                     if (sponsorRectUrl) {
                         return (
-                            <div className="absolute inset-0 flex items-center justify-center p-4">
-                                <img
-                                    src={sponsorRectUrl}
-                                    alt={event.sponsor?.name}
-                                    className="max-h-full max-w-full object-contain"
-                                />
-                            </div>
+                            <img
+                                src={sponsorRectUrl}
+                                alt={event.sponsor?.name}
+                                className="absolute inset-0 h-full w-full object-cover"
+                            />
                         );
                     }
 
@@ -121,17 +119,19 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                         ? (event.sponsor.logo_square_dark_url || event.sponsor.logo_square_url)
                         : event.sponsor.logo_square_url;
                     return (
-                        <div className="absolute bottom-2 right-2 flex items-center gap-2 rounded-lg bg-white/95 px-2.5 py-2 shadow-md dark:bg-gray-900/95">
+                        <div className="absolute bottom-2 right-2 size-12 overflow-hidden rounded-lg shadow-md">
                             {logoUrl ? (
                                 <img
                                     src={logoUrl}
                                     alt={event.sponsor.name}
-                                    className="h-10 w-10 object-contain"
+                                    className="h-full w-full object-cover"
                                 />
                             ) : (
-                                <span className="text-sm font-semibold text-foreground">
-                                    {event.sponsor.name}
-                                </span>
+                                <div className="flex h-full w-full items-center justify-center bg-white/95 px-1 dark:bg-gray-900/95">
+                                    <span className="text-center text-xs font-semibold text-foreground">
+                                        {event.sponsor.name}
+                                    </span>
+                                </div>
                             )}
                         </div>
                     );
@@ -159,10 +159,10 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                             Live Now
                         </Badge>
                     )}
-                    {event.is_featured && (
+                    {event.is_race_stage && (
                         <Badge className="bg-[#d4920a] text-white shadow-md hover:bg-[#b87c08]">
                             <Sparkles className="mr-1 size-3" />
-                            Featured
+                            Race Stage
                         </Badge>
                     )}
                     {event.is_recurring && (
@@ -220,6 +220,17 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                         <Clock className="size-4" />
                         <span>{event.start_time} - {event.end_time}</span>
                     </div>
+                    {event.url && (
+                        <a
+                            href={event.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-primary hover:underline"
+                        >
+                            <ExternalLink className="size-3.5" />
+                            <span>Website</span>
+                        </a>
+                    )}
                 </div>
 
                 {/* Location */}
@@ -228,19 +239,6 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                         <MapPin className="size-4 shrink-0" />
                         <span className="truncate">{event.location_name}</span>
                     </div>
-                )}
-
-                {/* Event URL */}
-                {event.url && (
-                    <a
-                        href={event.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-                    >
-                        <ExternalLink className="size-3.5" />
-                        <span className="truncate">Event website</span>
-                    </a>
                 )}
 
                 {/* Ride Stats */}
@@ -263,7 +261,7 @@ export function EventCard({ event, showFavouriteButton = true, className }: Even
                                 href={event.route_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 text-[#0a72bf] hover:underline dark:text-[#4da6f5]"
+                                className="flex items-center gap-1.5 font-bold text-teal-600 hover:underline dark:text-teal-400"
                             >
                                 <MapPin className="size-4 shrink-0" />
                                 <span>View route</span>

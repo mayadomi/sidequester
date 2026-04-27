@@ -289,6 +289,7 @@ function CreatorWelcome({ name, role, festivalName }: { name: string; role: stri
                                     {[
                                         { label: 'Browse events', href: '/events' },
                                         { label: 'View the map', href: '/map' },
+                                        { label: 'Go to homepage', href: home().url },
                                     ].map(({ label, href }) => (
                                         <Button key={href} asChild variant="outline" size="sm">
                                             <Link href={href}>{label}</Link>

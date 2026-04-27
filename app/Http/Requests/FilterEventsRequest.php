@@ -29,7 +29,7 @@ class FilterEventsRequest extends FormRequest
             'max_cost' => ['nullable', 'numeric', 'min:0', Rule::when($this->filled('min_cost'), 'gte:min_cost')],
             'min_favourites' => 'nullable|integer|min:0',
             'rides_only' => 'nullable|boolean',
-            'featured' => 'nullable|boolean',
+            'race_stage' => 'nullable|boolean',
             'free' => 'nullable|boolean',
             'recurring' => 'nullable|boolean',
             'womens' => 'nullable|boolean',

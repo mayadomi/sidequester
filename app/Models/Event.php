@@ -33,7 +33,7 @@ class Event extends Model implements HasMedia
         'sponsor_id',
         'ride_distance_km',
         'elevation_gain_m',
-        'is_featured',
+        'is_race_stage',
         'is_recurring',
         'is_womens',
         'url',
@@ -56,7 +56,7 @@ class Event extends Model implements HasMedia
         'end_datetime' => 'datetime',
         'ride_distance_km' => 'decimal:2',
         'elevation_gain_m' => 'integer',
-        'is_featured' => 'boolean',
+        'is_race_stage' => 'boolean',
         'is_recurring' => 'boolean',
         'is_womens' => 'boolean',
         'min_cost' => 'decimal:2',
@@ -127,11 +127,11 @@ class Event extends Model implements HasMedia
     }
 
     /**
-     * Scope: Featured events only.
+     * Scope: Race stage events only.
      */
-    public function scopeFeatured(Builder $query): Builder
+    public function scopeRaceStage(Builder $query): Builder
     {
-        return $query->where('is_featured', true);
+        return $query->where('is_race_stage', true);
     }
 
     /**

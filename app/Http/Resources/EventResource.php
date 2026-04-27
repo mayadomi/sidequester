@@ -26,7 +26,7 @@ class EventResource extends JsonResource
             'day_of_week' => $this->start_datetime->format('l'),
             'pace' => $this->pace,
             'route_url' => $this->route_url,
-            'is_featured' => $this->is_featured,
+            'is_race_stage' => $this->is_race_stage,
             'is_recurring' => $this->is_recurring,
             'is_womens' => $this->is_womens,
             'is_happening_now' => $this->isHappeningNow(),

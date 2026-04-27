@@ -17,7 +17,7 @@ trait FiltersEvents
             'category', 'tags',
             'min_distance', 'max_distance',
             'min_elevation', 'max_elevation',
-            'rides_only', 'featured', 'free',
+            'rides_only', 'race_stage', 'free',
             'recurring', 'womens',
             'min_cost', 'max_cost',
         ];
@@ -82,15 +82,17 @@ trait FiltersEvents
             $query->whereHas('sponsor', fn ($q) => $q->where('slug', $request->sponsor));
         }
 
-        // Ride distance filters
+        // Ride distance / elevation filters — restrict to non-race-stage ride events only
+        $hasRideFilter = $request->hasAny(['min_distance', 'max_distance', 'min_elevation', 'max_elevation']);
+        if ($hasRideFilter) {
+            $query->rides()->where('is_race_stage', false);
+        }
         if ($request->has('min_distance')) {
             $query->minDistance((float) $request->min_distance);
         }
         if ($request->has('max_distance')) {
             $query->maxDistance((float) $request->max_distance);
         }
-
-        // Elevation filters
         if ($request->has('min_elevation')) {
             $query->minElevation((int) $request->min_elevation);
         }
@@ -102,8 +104,8 @@ trait FiltersEvents
         if ($request->boolean('rides_only')) {
             $query->rides();
         }
-        if ($request->boolean('featured')) {
-            $query->featured();
+        if ($request->boolean('race_stage')) {
+            $query->raceStage();
         }
         if ($request->boolean('free')) {
             $query->free();

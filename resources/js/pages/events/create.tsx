@@ -47,7 +47,7 @@ type FormData = {
     pace: string;
     route_url: string;
     url: string;
-    is_featured: boolean;
+    is_race_stage: boolean;
     is_recurring: boolean;
     is_womens: boolean;
     is_free: boolean;
@@ -102,7 +102,7 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
         pace: '',
         route_url: '',
         url: '',
-        is_featured: false,
+        is_race_stage: false,
         is_recurring: false,
         is_womens: false,
         is_free: false,
@@ -589,12 +589,12 @@ export default function EventCreate({ categories, sponsors, tags }: EventCreateP
                         <CardContent className="space-y-3">
                             <div className="flex items-center gap-3">
                                 <Checkbox
-                                    id="is_featured"
-                                    checked={data.is_featured}
-                                    onCheckedChange={(v) => setData('is_featured', Boolean(v))}
+                                    id="is_race_stage"
+                                    checked={data.is_race_stage}
+                                    onCheckedChange={(v) => setData('is_race_stage', Boolean(v))}
                                 />
-                                <Label htmlFor="is_featured" className="cursor-pointer font-normal">
-                                    Featured event
+                                <Label htmlFor="is_race_stage" className="cursor-pointer font-normal">
+                                    Race Stage
                                 </Label>
                             </div>
                             <div className="flex items-center gap-3">

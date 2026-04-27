@@ -113,15 +113,15 @@ test('date filter takes precedence over date range when both are present', funct
 // Tests use '1' to match that serialisation. Using 'true' would fail Laravel's
 // boolean validation — see the regression test below.
 
-test('featured filter returns only featured events', function () {
-    $featured = Event::factory()->featured()->create();
-    $notFeatured = Event::factory()->create();
+test('race_stage filter returns only race stage events', function () {
+    $raceStage = Event::factory()->raceStage()->create();
+    $notRaceStage = Event::factory()->create();
 
-    $this->get(route('events.index', ['featured' => '1']))
+    $this->get(route('events.index', ['race_stage' => '1']))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('events.data', 1)
-            ->where('events.data.0.id', $featured->id)
+            ->where('events.data.0.id', $raceStage->id)
         );
 });
 
@@ -181,6 +181,54 @@ test('boolean filter rejects the string "true" — only "1" and "0" are valid', 
 });
 
 // ── Distance filters ──────────────────────────────────────────────────────────
+
+test('distance filter implicitly restricts to ride events only', function () {
+    $ride = Event::factory()->ride(30.0)->create();
+    $nonRide = Event::factory()->create(['ride_distance_km' => null]);
+
+    $this->get(route('events.index', ['max_distance' => 100]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('events.data', 1)
+            ->where('events.data.0.id', $ride->id)
+        );
+});
+
+test('distance filter excludes race stage events', function () {
+    $ride = Event::factory()->ride(30.0)->create();
+    $raceStage = Event::factory()->raceStage()->ride(30.0)->create();
+
+    $this->get(route('events.index', ['max_distance' => 100]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('events.data', 1)
+            ->where('events.data.0.id', $ride->id)
+        );
+});
+
+test('elevation filter implicitly restricts to ride events only', function () {
+    $ride = Event::factory()->ride(30.0, 200)->create();
+    $nonRide = Event::factory()->create(['ride_distance_km' => null, 'elevation_gain_m' => null]);
+
+    $this->get(route('events.index', ['max_elevation' => 1000]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('events.data', 1)
+            ->where('events.data.0.id', $ride->id)
+        );
+});
+
+test('elevation filter excludes race stage events', function () {
+    $ride = Event::factory()->ride(30.0, 200)->create();
+    $raceStage = Event::factory()->raceStage()->ride(30.0, 200)->create();
+
+    $this->get(route('events.index', ['max_elevation' => 1000]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('events.data', 1)
+            ->where('events.data.0.id', $ride->id)
+        );
+});
 
 test('min_distance filter excludes rides below threshold', function () {
     $short = Event::factory()->ride(20.0)->create();
@@ -414,27 +462,27 @@ test('max_cost less than min_cost returns a validation error', function () {
     $response->assertSessionHasErrors('max_cost');
 });
 
-// ── Featured events ───────────────────────────────────────────────────────────
+// ── Race stage events ─────────────────────────────────────────────────────────
 
-test('featured events are included when no filters are applied', function () {
-    Event::factory()->featured()->startingAt(now()->addDay()->toDateTimeString())->create();
+test('race stage events are included when no filters are applied', function () {
+    Event::factory()->raceStage()->startingAt(now()->addDay()->toDateTimeString())->create();
 
     $response = $this->get(route('events.index'));
 
     $response->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->has('featuredEvents')
+            ->has('raceStageEvents')
         );
 });
 
-test('featured events are not included when filters are active', function () {
-    Event::factory()->featured()->create();
+test('race stage events are not included when filters are active', function () {
+    Event::factory()->raceStage()->create();
 
-    $response = $this->get(route('events.index', ['featured' => '1']));
+    $response = $this->get(route('events.index', ['race_stage' => '1']));
 
     $response->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->where('featuredEvents', null)
+            ->where('raceStageEvents', null)
         );
 });
 
@@ -442,14 +490,14 @@ test('featured events are not included when filters are active', function () {
 
 test('active filters are returned in the response', function () {
     $response = $this->get(route('events.index', [
-        'featured' => '1',
+        'race_stage' => '1',
         'sort' => 'date',
         'order' => 'desc',
     ]));
 
     $response->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->where('filters.featured', '1')
+            ->where('filters.race_stage', '1')
             ->where('filters.sort', 'date')
             ->where('filters.order', 'desc')
         );
